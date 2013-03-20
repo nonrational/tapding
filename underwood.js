@@ -15,11 +15,12 @@ var typewriter = (function($){
     // blur        - fuzz a letter
     // two letters - type an extra letter that is near the one typed
     // fade        - running low on toner
-    //
+    // 80col       - keep hitting the last column
+    // jammed      - type two letters next to eachother at once and stop responding
+    // bold        - type the same letter over eachother (hard hit)
 
-    // setInterval(function(){
-    //     lastSpan().
-    // }, 500);
+    // features
+    // export to PDF
 
     function lastSpan(){ return $('#carbon span:last-child'); }
 
