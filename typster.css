@@ -1,0 +1,43 @@
+* {
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+}
+
+span {
+    background-color: transparent;
+    position: absolute;
+    left:0;
+    top:0;
+}
+
+#container {
+    width: 675px;
+    margin: auto;
+    position: relative;
+}
+
+#carbon {
+    height: 500px;
+    border: 2px solid black;
+    position: relative;
+}
+
+a {
+    text-decoration:  none;
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+}
+
+li {
+    float: left;
+    margin-right: 10px;
+}
+
+.blur {
+   color: black;
+   text-shadow: 0 0 1px rgba(0,0,0,0.5);
+}

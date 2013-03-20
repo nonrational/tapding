@@ -49,3 +49,11 @@ var typewriter = (function($){
     });
 
 })(jQuery);
+
+var marketing = (function($){
+    $('.reset').bind('click', function(e){
+        e&&e.preventDefault()
+        $('#carbon span').remove();
+    });
+}(jQuery));
+
