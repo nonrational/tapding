@@ -100,8 +100,11 @@ var typewriter = (function($){
                 } else if (chance < .20) {
                     $next = defspan().removeClass('none').addClass('blur');
                     $carbon.append($next);
-                } else if (chance < .61) {
+                } else if (chance < .22) {
                     $next = defspan().removeClass('none').addClass('wiggle');
+                    $carbon.append($next);
+                } else if (chance < .25) {
+                    $next = defspan().removeClass('none').addClass('fade');
                     $carbon.append($next);
                 }
 
@@ -110,6 +113,7 @@ var typewriter = (function($){
                 $carbon.append($next);
             }
 
+            // TODO sometimes type a blank or a faded letter.
             $next.append(char == ' ' ? '&nbsp;' : char);
             pcol=col;
             col++;

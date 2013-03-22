@@ -38,16 +38,24 @@ li {
 }
 
 .blur {
-   color: black;
-   text-shadow: 0 0 1px rgba(0,0,0,0.5);
+   /*color: black;*/
+   /*text-shadow: 0 0 1px rgba(0,0,0,0.5);*/
+   font-weight: bold;
+}
+
+.fade {
+   /*color: black;*/
+   /*text-shadow: 0 0 1px rgba(0,0,0,0.5);*/
+   font-weight: 100;
+   color: #666;
 }
 
 .wiggle {
-    transform: rotate(5deg);
-    -ms-transform: rotate(5deg); /* IE 9 */
-    -webkit-transform: rotate(5deg); /* Safari and Chrome */
-    -o-transform: rotate(5deg); /* Opera */
-    -moz-transform: rotate(5deg); /* Firefox */
+    transform: rotate(3deg);
+    -ms-transform: rotate(3deg); /* IE 9 */
+    -webkit-transform: rotate(3deg); /* Safari and Chrome */
+    -o-transform: rotate(3deg); /* Opera */
+    -moz-transform: rotate(3deg); /* Firefox */
 }
 
 .left-shift, .right-shift {
