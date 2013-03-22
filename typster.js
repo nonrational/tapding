@@ -1,15 +1,19 @@
 var typewriter = (function($){
-    var col = 0;
-    var row = 0;
     var BACKSPACE = 8;
     var RETURN = 13;
-    var $carbon;
 
+    // infernal state
+    var $carbon, $cursor;
+    // maintain the length of the previous line.
+    var col, row, pcol;
+
+    // configuration options
     var config = {
         row_height : 14,
         col_width  :  8,
         cursor    : '_',
-        backspace_over_newline : true
+        backspace_over_newline : true,
+        cursor_blink_interval : 500
     };
 
     // effects
@@ -23,15 +27,36 @@ var typewriter = (function($){
 
     // features
     // export to PDF
+    function print(){
+        $cursor.hide()
+        var pwin = window.open('', 'printwin', 'left=400,top=100,width=400,height=400');
+        pwin.document.write('<html><head><link rel="stylesheet" href="typster.css"></head>');
+        pwin.document.write('<body>')
+        pwin.document.write($carbon.html())
+        pwin.document.write('</body></html>');
+        pwin.print();
+        $cursor.show()
+    }
+
+    function h2c(){
+        if(html2canvas){
+            var pwin = window.open('', 'printwin', '');
+
+            html2canvas($carbon, {
+                onrendered : function(canvas){
+                    pwin.document.body.appendChild(canvas);
+                }
+            })
+        }
+    }
 
     // utility functions
-    function top(offset)  { return ((config.row_height * row) + (offset ? offset : 0)) + 'px; '; }
-    function left(offset) { return ((config.col_width * col)  + (offset ? offset : 0)) + 'px; '; }
-
-    function style(topoff, leftoff){ return 'top:' + top(topoff) + 'left:' + left(leftoff); }
-
+    function style(topoff, leftoff){
+        var top  = ((config.row_height * row) + (topoff  ? topoff  : 0)) + 'px;';
+        var left = ((config.col_width  * col) + (leftoff ? leftoff : 0)) + 'px;';
+        return 'top:' + top + ' left:' + left;
+    }
     function lastSpan(){ return $('#carbon span.type:last-child'); }
-
     function defspan(topoff, leftoff){
         return $('<span>', { 'class' : "type none", 'style' : style(topoff, leftoff) });
     }
@@ -42,6 +67,12 @@ var typewriter = (function($){
         $carbon = $('#carbon');
         $cursor = $('<span>', { 'class' : "cursor" }).text(config.cursor);
         $carbon.html('').append($cursor).append(defspan());
+
+        if(config.cursor_blink_interval > 0){
+            setInterval(function(){
+                $cursor.toggle();
+            }, config.cursor_blink_interval);
+        }
 
         $(document).unbind('keypress').bind('keypress',function(e){
             if(col >= 80){
@@ -69,6 +100,9 @@ var typewriter = (function($){
                 } else if (chance < .20) {
                     $next = defspan().removeClass('none').addClass('blur');
                     $carbon.append($next);
+                } else if (chance < .61) {
+                    $next = defspan().removeClass('none').addClass('wiggle');
+                    $carbon.append($next);
                 }
 
             } else {
@@ -77,6 +111,7 @@ var typewriter = (function($){
             }
 
             $next.append(char == ' ' ? '&nbsp;' : char);
+            pcol=col;
             col++;
 
             $cursor.attr('style', style());
@@ -88,6 +123,8 @@ var typewriter = (function($){
                 $('span.type:empty').remove();
                 e.preventDefault();
 
+                // the backspace over newline functionality is kinda broken.
+                // how do we record the length of the previous line?
                 if(config.backspace_over_newline && e.keyCode === BACKSPACE && col == 0){
                     row = Math.max(row-1, 0)
                 }
@@ -102,7 +139,7 @@ var typewriter = (function($){
         });
     }
 
-    return { initialize : initialize }
+    return { initialize : initialize, toPdf : h2c }
 
 })(jQuery);
 
@@ -112,6 +149,11 @@ var typewriter = (function($){
     $('.reset').bind('click', function(e){
         e&&e.preventDefault()
         typewriter.initialize();
+    });
+
+    $('.print').bind('click', function(e){
+        e&&e.preventDefault()
+        typewriter.toPdf();
     });
 }(jQuery));
 

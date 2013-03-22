@@ -41,3 +41,16 @@ li {
    color: black;
    text-shadow: 0 0 1px rgba(0,0,0,0.5);
 }
+
+.wiggle {
+    transform: rotate(5deg);
+    -ms-transform: rotate(5deg); /* IE 9 */
+    -webkit-transform: rotate(5deg); /* Safari and Chrome */
+    -o-transform: rotate(5deg); /* Opera */
+    -moz-transform: rotate(5deg); /* Firefox */
+}
+
+.left-shift, .right-shift {
+
+}
+
