@@ -29,7 +29,7 @@ var typewriter = (function($){
         cursor    : '_',
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
-        rate_limit: 315,
+        rate_limit: 50,
         enable_sounds: true,
         auto_scroll_buffer : 300
     };
@@ -142,14 +142,15 @@ var typewriter = (function($){
     }
 
     function initializeSoundFX(){
-        sfx['key1']      = new Audio(SFX_DIR+'key-new-01.mp3');
-        sfx['key2']      = new Audio(SFX_DIR+'key-new-02.mp3');
-        sfx['key3']      = new Audio(SFX_DIR+'key-new-03.mp3');
-        sfx['key4']      = new Audio(SFX_DIR+'key-new-04.mp3');
-        sfx['key5']      = new Audio(SFX_DIR+'key-new-05.mp3');
-        sfx['return']    = new Audio(SFX_DIR+'return.mp3');
-        sfx['backspace'] = new Audio(SFX_DIR+'backspace.mp3');
-        sfx['spacebar']  = new Audio(SFX_DIR+'space.mp3');
+        var opt = { pool: 5 };
+        sfx['key1']      = new AudioFX(SFX_DIR+'key-new-01.mp3', opt);
+        sfx['key2']      = new AudioFX(SFX_DIR+'key-new-02.mp3', opt);
+        sfx['key3']      = new AudioFX(SFX_DIR+'key-new-03.mp3', opt);
+        sfx['key4']      = new AudioFX(SFX_DIR+'key-new-04.mp3', opt);
+        sfx['key5']      = new AudioFX(SFX_DIR+'key-new-05.mp3', opt);
+        sfx['return']    = new AudioFX(SFX_DIR+'return.mp3',     opt);
+        sfx['backspace'] = new AudioFX(SFX_DIR+'backspace.mp3',  opt);
+        sfx['spacebar']  = new AudioFX(SFX_DIR+'space.mp3',      opt);
     }
 
     function scrollTo($el){
