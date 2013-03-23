@@ -6,12 +6,17 @@ var typewriter = (function($){
     var RETURN = 13;
     var SPACEBAR = 32;
 
+    var SFX_DIR = 'sfx/noisy-typer/'
+
     // infernal state
     var $carbon, $cursor;
     var col, row;
     // on enter key, store length of the line so we can backspace over newlines
     var rowlength = [];
+    // sound effects
+    var sfx = [];
     var blinky;
+    var block = false;
 
     // configuration options
     var config = {
@@ -19,7 +24,9 @@ var typewriter = (function($){
         col_width  :  8,
         cursor    : '_',
         backspace_over_newline : true,
-        cursor_blink_interval : 500
+        cursor_blink_interval : 500,
+        key_timing: 225,
+        enable_sounds: true
     };
 
     var log = console ? console : {error : function(){}, debug : function(){}};
@@ -104,6 +111,7 @@ var typewriter = (function($){
         if(col === 79){
             $next = defspan();
             $carbon.append($next);
+            sfx['return'].play();
         }
 
         $next.append(char);
@@ -113,11 +121,19 @@ var typewriter = (function($){
         if(col < 79){
             rowlength[row] = col;
             col++;
-            $cursor.attr('style', style());
         }
     }
 
-
+    function initializeSoundFX(){
+        sfx['key1']      = new Audio(SFX_DIR+'key-new-01.mp3');
+        sfx['key2']      = new Audio(SFX_DIR+'key-new-02.mp3');
+        sfx['key3']      = new Audio(SFX_DIR+'key-new-03.mp3');
+        sfx['key4']      = new Audio(SFX_DIR+'key-new-04.mp3');
+        sfx['key5']      = new Audio(SFX_DIR+'key-new-05.mp3');
+        sfx['return']    = new Audio(SFX_DIR+'return.mp3');
+        sfx['backspace'] = new Audio(SFX_DIR+'backspace.mp3');
+        sfx['spacebar']  = new Audio(SFX_DIR+'space.mp3');
+    }
 
     function initialize() {
         row = 0;
@@ -125,6 +141,8 @@ var typewriter = (function($){
         $carbon = $('#carbon');
         $cursor = $('<span>', { 'class' : "cursor" }).text(config.cursor);
         $carbon.html('').append($cursor).append(defspan());
+
+        initializeSoundFX();
 
         // <blink>
         if(config.cursor_blink_interval > 0){
@@ -134,18 +152,25 @@ var typewriter = (function($){
             }, config.cursor_blink_interval);
         }
 
-
         $(document).unbind('keypress').bind('keypress',function(e){
             // log.debug("[keypress] " + e.keyCode);
-            writeCharacter(String.fromCharCode(e.which))
+
+
+            sfx['key'+(1 + Math.floor(Math.random()*5))].play();
+            writeCharacter(String.fromCharCode(e.which));
+            $cursor.attr('style', style());
+
         });
 
         $(document).unbind('keydown').bind('keydown', function (e) {
             // log.debug("[keydown] " + e.keyCode);
+            if(block){ e&&e.preventDefault(); return; } else { block = true; }
 
             if (e.keyCode === SPACEBAR){
                 e.preventDefault();
+                sfx['spacebar'].play();
                 writeCharacter('&nbsp;');
+                $cursor.attr('style', style());
             }
 
             if (e.keyCode === RETURN || e.keyCode === BACKSPACE) {
@@ -161,9 +186,15 @@ var typewriter = (function($){
                 col = e.keyCode === RETURN ? 0 : Math.max(col-1, 0);
                 row = e.keyCode === RETURN ? row+1 : row;
 
+                sfx[e.keyCode === RETURN ? 'backspace' : 'backspace'].play();
+
                 $carbon.append(defspan());
                 $cursor.attr('style', style());
             }
+
+            setTimeout(function(){
+                block = false;
+            }, config.key_timing);
         });
     }
 
