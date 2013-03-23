@@ -37,9 +37,9 @@ var typewriter = (function($){
     };
 
     var log = {
-        debug_enabled : true,
         error_enabled : true,
-        trace_enabled : true,
+        debug_enabled : !!window.location.hostname.match(/localhost/),
+        trace_enabled : !!window.location.hostname.match(/localhost/),
 
         error : function(msg){
             if(this.error_enabled && console){
@@ -218,9 +218,11 @@ var typewriter = (function($){
             }
 
             if (e.keyCode === RETURN || e.keyCode === BACKSPACE) {
-                 // cleanup. empty spans are just waste.
-                $('span.type:empty').remove();
                 e.preventDefault();
+                 // cleanup. empty spans are just waste.
+                $("span.type").filter(function(){
+                    return $(this).text() === " ";
+                }).remove();
 
                 if(config.backspace_over_newline && e.keyCode === BACKSPACE && col === 0){
                     row = Math.max(row-1, 0);
