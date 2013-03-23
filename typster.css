@@ -4,6 +4,16 @@
     padding: 0;
 }
 
+.header {
+    vertical-align: middle;
+    border-bottom: 1px dotted black;
+    margin-bottom: 10px;
+}
+
+h2 {
+    display: inline-block;
+}
+
 span {
     background-color: transparent;
     position: absolute;
@@ -12,15 +22,18 @@ span {
 }
 
 #container {
-    width: 675px;
+    /*80 * 8*/
+    width: 646px;
     margin: auto;
     position: relative;
 }
 
 #carbon {
-    height: 500px;
-    border: 2px solid black;
+    height: 700px;
+    border-right: 2px solid #ccc;
+    border-left: 2px solid #ccc;
     position: relative;
+    padding: 0 2px;
 }
 
 a {
@@ -28,8 +41,14 @@ a {
     font-weight: bold;
 }
 
+a:hover {
+    text-decoration: line-through;
+}
+
 ul {
     list-style: none;
+    display: inline-block;
+    float: right;
 }
 
 li {
@@ -47,7 +66,7 @@ li {
    /*color: black;*/
    /*text-shadow: 0 0 1px rgba(0,0,0,0.5);*/
    font-weight: 100;
-   color: #666;
+   color: #777;
 }
 
 .wiggle {
@@ -60,5 +79,9 @@ li {
 
 .left-shift, .right-shift {
 
+}
+
+input {
+    width: 642px;
 }
 
