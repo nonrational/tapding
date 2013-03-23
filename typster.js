@@ -5,6 +5,7 @@ var typewriter = (function($){
     var BACKSPACE = 8;
     var RETURN = 13;
     var SPACEBAR = 32;
+    var SHIFT = 16;
 
     var SFX_DIR = 'sfx/noisy-typer/'
 
@@ -179,15 +180,20 @@ var typewriter = (function($){
         }
 
         $(document).unbind('keypress').bind('keypress',function(e){
-            // log.debug("[keypress] " + e.keyCode);
+            log.debug("[keypress] " + e.keyCode);
             playSound('key'+(1 + Math.floor(Math.random()*5)))
             writeCharacter(String.fromCharCode(e.which));
             $cursor.attr('style', style());
         });
 
         $(document).unbind('keydown').bind('keydown', function (e) {
-            // log.debug("[keydown] " + e.keyCode);
-            if(block){ e&&e.preventDefault(); return; } else { block = true; }
+            log.debug("[keydown] " + e.keyCode);
+
+            if (block) {
+                e&&e.preventDefault(); return;
+            } else if (e.keyCode !== SHIFT) {
+                block = true;
+            }
 
             if (e.keyCode === SPACEBAR){
                 e.preventDefault();
