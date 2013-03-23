@@ -5,7 +5,8 @@ var typewriter = (function($){
     var BACKSPACE = 8;
     var RETURN = 13;
     var SPACEBAR = 32;
-    var SHIFT = 16;
+    var TAB = 9;
+    var NON_BLOCKING_MODIFIERS = [16, 17, 18, 91];
 
     var SFX_DIR = 'sfx/noisy-typer/'
 
@@ -28,12 +29,33 @@ var typewriter = (function($){
         cursor    : '_',
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
-        key_timing: 275,
+        rate_limit: 315,
         enable_sounds: true,
         auto_scroll_buffer : 300
     };
 
-    var log = console ? console : {error : function(){}, debug : function(){}};
+    var log = {
+        debug_enabled : true,
+        error_enabled : true,
+        trace_enabled : false,
+
+        error : function(msg){
+            if(this.error_enabled && console){
+                console.error(msg);
+            }
+        },
+        debug : function(msg){
+            if(this.debug_enabled && console){
+                console.debug(msg);
+            }
+        },
+        trace : function(msg){
+            if(this.trace_enabled && console){
+                console.trace(msg);
+            }
+        }
+
+    };
 
     // effects
     // shift stick - uppercase a letter
@@ -43,19 +65,6 @@ var typewriter = (function($){
     // 80col       - keep hitting the last column
     // jammed      - type two letters next to eachother at once and stop responding
     // bold        - type the same letter over eachother (hard hit)
-
-    // features
-    // export to PDF
-    function print(){
-        $cursor.hide();
-        var pwin = window.open('', 'printwin', 'left=400,top=100,width=400,height=400');
-        pwin.document.write('<html><head><link rel="stylesheet" href="typster.css"></head>');
-        pwin.document.write('<body>');
-        pwin.document.write($carbon.html());
-        pwin.document.write('</body></html>');
-        pwin.print();
-        $cursor.show();
-    }
 
     function h2c(){
         if(html2canvas){
@@ -149,7 +158,7 @@ var typewriter = (function($){
             scrollTop:  $el.offset().top  - config.auto_scroll_buffer
         }, {
             easing: 'swing',
-            duration: config.key_timing - 50,
+            duration: config.rate_limit - 50,
             complete: $.noop,
             step: $.noop
         });
@@ -180,18 +189,21 @@ var typewriter = (function($){
         }
 
         $(document).unbind('keypress').bind('keypress',function(e){
-            log.debug("[keypress] " + e.keyCode);
+            log.trace("[keypress] " + e.keyCode);
             playSound('key'+(1 + Math.floor(Math.random()*5)))
             writeCharacter(String.fromCharCode(e.which));
             $cursor.attr('style', style());
         });
 
         $(document).unbind('keydown').bind('keydown', function (e) {
-            log.debug("[keydown] " + e.keyCode);
+            log.trace("[keydown] " + e.keyCode);
 
             if (block) {
                 e&&e.preventDefault(); return;
-            } else if (e.keyCode !== SHIFT) {
+            } else if ($.inArray(e.keyCode, NON_BLOCKING_MODIFIERS) >= 0) {
+                log.debug("Modifier : " + e.keyCode);
+            } else {
+                log.trace("Blocking...")
                 block = true;
             }
 
@@ -223,8 +235,9 @@ var typewriter = (function($){
             }
 
             setTimeout(function(){
+                log.trace("Unblocking");
                 block = false;
-            }, config.key_timing);
+            }, config.rate_limit);
         });
     }
 
