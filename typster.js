@@ -27,7 +27,7 @@ var typewriter = (function($){
         row_height : 18,
         col_width  : 11, // 8 (default)
         max_column : 59,
-        max_row    : 63,
+        max_row    : 49,
         cursor    : '_',
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
@@ -70,10 +70,12 @@ var typewriter = (function($){
 
     function h2c(){
         if(html2canvas){
+            $cursor.hide()
             var pwin = window.open('', 'printwin', '');
             html2canvas($carbon, {
                 onrendered : function(canvas){
                     pwin.document.body.appendChild(canvas);
+                    $cursor.show();
                 }
             });
         }
@@ -221,7 +223,7 @@ var typewriter = (function($){
                 e.preventDefault();
                  // cleanup. empty spans are just waste.
                 $("span.type").filter(function(){
-                    return $(this).text() === " ";
+                    return $(this).text().replace("&nbsp;","") === ""
                 }).remove();
 
                 if(config.backspace_over_newline && e.keyCode === BACKSPACE && col === 0){
