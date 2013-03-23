@@ -20,13 +20,16 @@ var typewriter = (function($){
 
     // configuration options
     var config = {
-        row_height : 14,
-        col_width  :  8,
+        row_height : 15,
+        col_width  : 11, // 8 (default)
+        max_column : 59,
+        max_row    : 63,
         cursor    : '_',
         backspace_over_newline : true,
-        cursor_blink_interval : 500,
-        key_timing: 225,
-        enable_sounds: true
+        cursor_blink_interval : 0, // 500
+        key_timing: 275,
+        enable_sounds: true,
+        auto_scroll_buffer : 300
     };
 
     var log = console ? console : {error : function(){}, debug : function(){}};
@@ -70,7 +73,11 @@ var typewriter = (function($){
         var left = ((config.col_width  * col) + (leftoff ? leftoff : 0)) + 'px;';
         return 'top:' + top + ' left:' + left;
     }
-    function lastSpan(){ return $('#carbon span.type:last-child'); }
+
+    function lastSpan(){
+        return $('#carbon span.type:last-child');
+    }
+
     function defspan(topoff, leftoff){
         return $('<span>', { 'class' : "type none", 'style' : style(topoff, leftoff) });
     }
@@ -78,8 +85,8 @@ var typewriter = (function($){
     function writeCharacter(char){
         var $next = lastSpan();
 
-        // Don't generate an effect immediately after generating an effect.
-        // Don't generate an effect on the first column.
+        // // Don't generate an effect immediately after generating an effect.
+        // // Don't generate an effect on the first column.
         if($next.hasClass('none') && col > 0){
             // generate effect randomly, insert a new
             // maybe recalculate $next for new span
@@ -108,17 +115,17 @@ var typewriter = (function($){
         }
 
         // special case handling for the end of the line
-        if(col === 79){
+        if(col === config.max_column){
             $next = defspan();
             $carbon.append($next);
-            sfx['return'].play();
+            playSound('return');
         }
 
         $next.append(char);
 
         // TODO sometimes type a blank or a faded letter.
         // only move the cursor if we're not at the end of the page
-        if(col < 79){
+        if(col < config.max_column){
             rowlength[row] = col;
             col++;
         }
@@ -135,6 +142,24 @@ var typewriter = (function($){
         sfx['spacebar']  = new Audio(SFX_DIR+'space.mp3');
     }
 
+    function scrollTo($el){
+        $('html, body').stop().animate({
+            scrollLeft: $el.offset().left,
+            scrollTop:  $el.offset().top  - config.auto_scroll_buffer
+        }, {
+            easing: 'swing',
+            duration: config.key_timing - 50,
+            complete: $.noop,
+            step: $.noop
+        });
+    }
+
+    function playSound(key){
+        if(config.enable_sounds){
+            sfx[key].play();
+        }
+    }
+
     function initialize() {
         row = 0;
         col = 0;
@@ -143,6 +168,7 @@ var typewriter = (function($){
         $carbon.html('').append($cursor).append(defspan());
 
         initializeSoundFX();
+        scrollTo($('head'));
 
         // <blink>
         if(config.cursor_blink_interval > 0){
@@ -154,12 +180,9 @@ var typewriter = (function($){
 
         $(document).unbind('keypress').bind('keypress',function(e){
             // log.debug("[keypress] " + e.keyCode);
-
-
-            sfx['key'+(1 + Math.floor(Math.random()*5))].play();
+            playSound('key'+(1 + Math.floor(Math.random()*5)))
             writeCharacter(String.fromCharCode(e.which));
             $cursor.attr('style', style());
-
         });
 
         $(document).unbind('keydown').bind('keydown', function (e) {
@@ -168,7 +191,7 @@ var typewriter = (function($){
 
             if (e.keyCode === SPACEBAR){
                 e.preventDefault();
-                sfx['spacebar'].play();
+                playSound(['spacebar']);
                 writeCharacter('&nbsp;');
                 $cursor.attr('style', style());
             }
@@ -184,12 +207,13 @@ var typewriter = (function($){
                 }
 
                 col = e.keyCode === RETURN ? 0 : Math.max(col-1, 0);
-                row = e.keyCode === RETURN ? row+1 : row;
+                row = Math.min(config.max_row, e.keyCode === RETURN ? row+1 : row);
 
-                sfx[e.keyCode === RETURN ? 'backspace' : 'backspace'].play();
+                playSound(e.keyCode === RETURN ? 'backspace' : 'backspace');
 
                 $carbon.append(defspan());
                 $cursor.attr('style', style());
+                scrollTo($cursor);
             }
 
             setTimeout(function(){
