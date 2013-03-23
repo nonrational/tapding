@@ -19,6 +19,9 @@ h2 {
 
 span {
     background-color: transparent;
+}
+
+span.type, span.cursor {
     position: absolute;
     left:0;
     top:0;
@@ -34,7 +37,7 @@ span {
 
 #carbon {
     margin-top: 10px;
-    height: 1000px;
+    height: 1200px;
     /*background-color: #FFFBFE;*/
 /*    border-right: 2px solid #ccc;
     border-left: 2px solid #ccc;*/
@@ -43,12 +46,17 @@ span {
 }
 
 a {
+    color: black;
     text-decoration:  none;
     font-weight: bold;
 }
 
 a:visited {
     color: black;
+}
+
+a:active {
+    color: red;
 }
 
 a.unavailable {
@@ -98,5 +106,17 @@ li {
 
 input {
     width: 642px;
+}
+
+#messages {
+    height:20px;
+}
+
+.message {
+    display: none;
+    background-color: #FFFCFC;
+    padding: 2px;
+    text-align: center;
+    font-size: 14px;
 }
 

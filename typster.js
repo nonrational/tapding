@@ -8,6 +8,8 @@ var typewriter = (function($){
     var TAB = 9;
     var NON_BLOCKING_MODIFIERS = [16, 17, 18, 91];
 
+    // TODO Include arrow key support?
+
     var SFX_DIR = 'sfx/noisy-typer/'
 
     // infernal state
@@ -22,7 +24,7 @@ var typewriter = (function($){
 
     // configuration options
     var config = {
-        row_height : 15,
+        row_height : 18,
         col_width  : 11, // 8 (default)
         max_column : 59,
         max_row    : 63,
@@ -37,7 +39,7 @@ var typewriter = (function($){
     var log = {
         debug_enabled : true,
         error_enabled : true,
-        trace_enabled : false,
+        trace_enabled : true,
 
         error : function(msg){
             if(this.error_enabled && console){
@@ -51,7 +53,7 @@ var typewriter = (function($){
         },
         trace : function(msg){
             if(this.trace_enabled && console){
-                console.trace(msg);
+                console.debug(msg);
             }
         }
 
@@ -242,12 +244,24 @@ var typewriter = (function($){
         });
     }
 
-    return { initialize : initialize, toPdf : h2c };
+    return { initialize : initialize, toPdf : h2c};
 
 }(jQuery));
 
 (function($){
+
+    function fault(message){
+        $('.message').hide().text(message).fadeIn();
+        setTimeout(function(){ $('.message').fadeOut() }, 1000);
+    }
+
     typewriter.initialize();
+
+    $('.unavailable').bind('click', function(e){
+        e&&e.preventDefault();
+        fault("Not Implemented Yet. Coming in Typester v.0.3!");
+    });
+
 
     $('.reset').bind('click', function(e){
         e&&e.preventDefault();
