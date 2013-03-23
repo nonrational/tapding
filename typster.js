@@ -11,6 +11,7 @@ var typewriter = (function($){
     var col, row;
     // on enter key, store length of the line so we can backspace over newlines
     var rowlength = [];
+    var blinky;
 
     // configuration options
     var config = {
@@ -48,7 +49,6 @@ var typewriter = (function($){
     function h2c(){
         if(html2canvas){
             var pwin = window.open('', 'printwin', '');
-
             html2canvas($carbon, {
                 onrendered : function(canvas){
                     pwin.document.body.appendChild(canvas);
@@ -128,7 +128,8 @@ var typewriter = (function($){
 
         // <blink>
         if(config.cursor_blink_interval > 0){
-            setInterval(function(){
+            clearInterval(blinky);
+            blinky = setInterval(function(){
                 $cursor.toggle();
             }, config.cursor_blink_interval);
         }
