@@ -1,11 +1,11 @@
 * {
-    font-family: monospace;
     font-size: 18px;
     margin: 0;
     padding: 0;
 }
 
 .header {
+    font-family: Courier;
     vertical-align: middle;
     border-bottom: 1px dotted black;
     margin-bottom: 10px;
@@ -44,6 +44,15 @@ span.type, span.cursor {
     position: relative;
     padding: 0 2px;
 }
+
+#carbon.courier {
+    font-family: Courier;
+}
+
+#carbon.courier {
+    font-family: Courier;
+}
+
 
 a {
     color: black;

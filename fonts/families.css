@@ -1,0 +1,34 @@
+/*font.css*/
+
+@font-face { font-family: 'My Underwood'; src: url(MyUnderwood.ttf); }
+@font-face { font-family: '1942'; src: url(1942.ttf); }
+@font-face { font-family: 'Another Typewriter'; src: url(AnotherTypewriter.ttf); }
+@font-face { font-family: 'Carpal Tunnel'; src: url(CarpalTunnel.ttf); }
+@font-face { font-family: 'Erika Ormig'; src: url(ErikaOrmig.ttf); }
+@font-face { font-family: 'European Typewriter'; src: url(EuropeanTypewriter.ttf); }
+@font-face { font-family: 'Hermes'; src: url(Hermes.ttf); }
+@font-face { font-family: 'Leicester'; src: url(Leicester.ttf); }
+@font-face { font-family: 'Moms Typewriter'; src: url(MomsTypewriter.ttf); }
+@font-face { font-family: 'Phonetique'; src: url(Phonetique.ttf); }
+@font-face { font-family: 'SENTA Schreibmaschine'; src: url(SENTA_Schreibmaschine.ttf); }
+@font-face { font-family: 'Traveling Typewriter'; src: url(TravelingTypewriter.ttf); }
+@font-face { font-family: 'Typewriter Scribbled'; src: url(TypewriterScribbled.ttf); }
+@font-face { font-family: 'Typical Writer'; src: url(Typical_Writer.ttf); }
+@font-face { font-family: 'Urania Czech'; src: url(urania_czech.ttf); }
+
+.courier   { font-family: 'Courier'; }
+.underwood { font-family: 'My Underwood'; }
+.onenine42 { font-family: '1942'; }
+.atype     { font-family: 'Another Typewriter'; }
+.carpal    { font-family: 'Carpal Tunnel'; }
+.erika     { font-family: 'Erika Ormig'; }
+.europe    { font-family: 'European Typewriter'; }
+.hermes    { font-family: 'Hermes'; }
+.leicester { font-family: 'Leicester'; }
+.moms      { font-family: 'Moms Typewriter'; }
+.phonetique{ font-family: 'Phonetique'; }
+.senta     { font-family: 'SENTA Schreibmaschine'; }
+.travel    { font-family: 'Traveling Typewriter'; }
+.scribbled { font-family: 'Typewriter Scribbled'; }
+.typical   { font-family: 'Typical Writer'; }
+.urania    { font-family: 'Urania Czech'; }
