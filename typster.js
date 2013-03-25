@@ -35,9 +35,6 @@ var typewriter = (function($){
     // configuration options
     var config = {};
 
-    // $.extend(config, font_config.underwood);
-    // $.extend(config, font_config.atype);
-
     var log = {
         error_enabled : true,
         debug_enabled : !!window.location.hostname.match(/localhost/),
@@ -58,7 +55,6 @@ var typewriter = (function($){
                 console.debug(msg);
             }
         }
-
     };
 
     // effects
@@ -73,7 +69,7 @@ var typewriter = (function($){
     function h2c(){
         if(html2canvas){
             $cursor.hide()
-            var pwin = window.open('', 'printwin', '');
+            var pwin = window.open('', '_blank', 'location=0');
             html2canvas($carbon, {
                 onrendered : function(canvas){
                     pwin.document.body.appendChild(canvas);
