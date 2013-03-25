@@ -7,10 +7,7 @@ var typewriter = (function($){
     var SPACEBAR = 32;
     var TAB = 9;
     var NON_BLOCKING_MODIFIERS = [16, 17, 18, 91];
-
-    // TODO Include arrow key support?
-
-    var SFX_DIR = 'sfx/noisy-typer/'
+    var SFX_DIR = 'sfx/noisy-typer/';
 
     // infernal state
     var $carbon, $cursor;
@@ -22,19 +19,43 @@ var typewriter = (function($){
     var blinky;
     var block = false;
 
+    var font_config = {
+        underwood: {
+            font_class: 'underwood',
+            center_chars: '.!\'"',
+            monospaced: false
+        },
+        atype: {
+            font_class: 'atype',
+            col_width : 10,
+            center_chars: '.!\'"',
+            monospaced: false
+        },
+        carpal: {
+            font_class: 'carpal',
+            // col_width : 10,
+            // center_chars: '.!\'"'
+            monospaced: false
+        },
+    };
+
     // configuration options
     var config = {
+        font_class : 'courier',
+        monospaced : true,
         row_height : 18,
-        col_width  : 11, // 8 (default)
-        max_column : 59,
-        max_row    : 49,
-        cursor    : '_',
+        col_width  : 11,
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
         rate_limit: 50,
         enable_sounds: true,
-        auto_scroll_buffer : 300
+        auto_scroll_buffer : 300,
+        center_chars : ''
     };
+
+    $.extend(config, font_config.carpal);
+    // $.extend(config, font_config.underwood);
+    // $.extend(config, font_config.atype);
 
     var log = {
         error_enabled : true,
@@ -85,7 +106,11 @@ var typewriter = (function($){
     function style(topoff, leftoff){
         var top  = ((config.row_height * row) + (topoff  ? topoff  : 0)) + 'px;';
         var left = ((config.col_width  * col) + (leftoff ? leftoff : 0)) + 'px;';
-        return 'top:' + top + ' left:' + left;
+
+        var topLeft = 'top:' + top + ' left:' + left;
+        var widthHeight =  'width:' + config.col_width + 'px; height:' + config.row_height + 'px;'
+
+        return  topLeft + ' ' + widthHeight;
     }
 
     function lastSpan(){
@@ -101,37 +126,43 @@ var typewriter = (function($){
 
         // // Don't generate an effect immediately after generating an effect.
         // // Don't generate an effect on the first column.
-        if($next.hasClass('none') && col > 0){
-            // generate effect randomly, insert a new
-            // maybe recalculate $next for new span
-            var chance = Math.random();
+        // if($next.hasClass('none') && col > 0){
+        //     // generate effect randomly, insert a new
+        //     // maybe recalculate $next for new span
+        //     var chance = Math.random();
 
-            if(chance < 0.05){
-                $next = defspan(0, -2).removeClass('none').addClass('left-shift');
-                $carbon.append($next);
-            } else if (chance < 0.10) {
-                $next = defspan(0, 1).removeClass('none').addClass('right-shift');
-                $carbon.append($next);
-            } else if (chance < 0.20) {
-                $next = defspan().removeClass('none').addClass('blur');
-                $carbon.append($next);
-            } else if (chance < 0.22) {
-                $next = defspan().removeClass('none').addClass('wiggle');
-                $carbon.append($next);
-            } else if (chance < 0.25) {
-                $next = defspan().removeClass('none').addClass('fade');
-                $carbon.append($next);
-            }
+        //     if(chance < 0.05){
+        //         $next = defspan(0, -2).removeClass('none').addClass('left-shift');
+        //         $carbon.append($next);
+        //     } else if (chance < 0.10) {
+        //         $next = defspan(0, 1).removeClass('none').addClass('right-shift');
+        //         $carbon.append($next);
+        //     } else if (chance < 0.20) {
+        //         $next = defspan().removeClass('none').addClass('blur');
+        //         $carbon.append($next);
+        //     } else if (chance < 0.22) {
+        //         $next = defspan().removeClass('none').addClass('wiggle');
+        //         $carbon.append($next);
+        //     } else if (chance < 0.25) {
+        //         $next = defspan().removeClass('none').addClass('fade');
+        //         $carbon.append($next);
+        //     }
 
-        } else {
+        // } else {
+        //     $next = defspan();
+        //     $carbon.append($next);
+        // }
+
+        if( config.monospaced === false ){
             $next = defspan();
+            if(config.center_chars.indexOf(char) >= 0){
+                $next.css('text-align', 'center');
+            }
             $carbon.append($next);
         }
 
         // special case handling for the end of the line
-        if(col === config.max_column){
-            $next = defspan();
-            $carbon.append($next);
+        if(col >= config.max_col - 4){
             playSound('return');
         }
 
@@ -139,7 +170,7 @@ var typewriter = (function($){
 
         // TODO sometimes type a blank or a faded letter.
         // only move the cursor if we're not at the end of the page
-        if(col < config.max_column){
+        if(col < config.max_col){
             rowlength[row] = col;
             col++;
         }
@@ -179,8 +210,12 @@ var typewriter = (function($){
         row = 0;
         col = 0;
         $carbon = $('#carbon');
-        $cursor = $('<span>', { 'class' : "cursor" }).text(config.cursor);
+        $cursor = $('<span>', { 'class' : "cursor" });
+        $carbon.attr('class', config.font_class);
         $carbon.html('').append($cursor).append(defspan());
+
+        config.max_row = Math.floor($carbon.height() / config.row_height);
+        config.max_col = Math.floor($carbon.width() / config.col_width);
 
         initializeSoundFX();
         scrollTo($('head'));
@@ -245,7 +280,10 @@ var typewriter = (function($){
                 log.trace("Unblocking");
                 block = false;
             }, config.rate_limit);
+
         });
+
+        $cursor.attr('style', style());
     }
 
     return { initialize : initialize, toPdf : h2c};

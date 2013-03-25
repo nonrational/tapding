@@ -21,6 +21,11 @@ span {
     background-color: transparent;
 }
 
+span.cursor {
+    border-bottom: 2px dotted black;
+    /*border-radius: 2px;*/
+}
+
 span.type, span.cursor {
     position: absolute;
     left:0;
@@ -44,15 +49,6 @@ span.type, span.cursor {
     position: relative;
     padding: 0 2px;
 }
-
-#carbon.courier {
-    font-family: Courier;
-}
-
-#carbon.courier {
-    font-family: Courier;
-}
-
 
 a {
     color: black;
@@ -122,6 +118,7 @@ input {
 }
 
 .message {
+    font-family: "Courier";
     display: none;
     background-color: #FFFCFC;
     padding: 2px;

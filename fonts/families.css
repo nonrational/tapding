@@ -1,7 +1,7 @@
 /*font.css*/
 
+/*@font-face { font-family: '1942'; src: url(1942.ttf); }*/
 @font-face { font-family: 'My Underwood'; src: url(MyUnderwood.ttf); }
-@font-face { font-family: '1942'; src: url(1942.ttf); }
 @font-face { font-family: 'Another Typewriter'; src: url(AnotherTypewriter.ttf); }
 @font-face { font-family: 'Carpal Tunnel'; src: url(CarpalTunnel.ttf); }
 @font-face { font-family: 'Erika Ormig'; src: url(ErikaOrmig.ttf); }
@@ -17,8 +17,8 @@
 @font-face { font-family: 'Urania Czech'; src: url(urania_czech.ttf); }
 
 .courier   { font-family: 'Courier'; }
+/*.onenine42 { font-family: '1942'; }*/
 .underwood { font-family: 'My Underwood'; }
-.onenine42 { font-family: '1942'; }
 .atype     { font-family: 'Another Typewriter'; }
 .carpal    { font-family: 'Carpal Tunnel'; }
 .erika     { font-family: 'Erika Ormig'; }
