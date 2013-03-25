@@ -19,28 +19,7 @@ var typewriter = (function($){
     var blinky;
     var block = false;
 
-    var font_config = {
-        underwood: {
-            font_class: 'underwood',
-            center_chars: '.!\'"',
-            monospaced: false
-        },
-        atype: {
-            font_class: 'atype',
-            col_width : 10,
-            center_chars: '.!\'"',
-            monospaced: false
-        },
-        carpal: {
-            font_class: 'carpal',
-            // col_width : 10,
-            // center_chars: '.!\'"'
-            monospaced: false
-        },
-    };
-
-    // configuration options
-    var config = {
+    var defaultConfig = {
         font_class : 'courier',
         monospaced : true,
         row_height : 18,
@@ -53,7 +32,9 @@ var typewriter = (function($){
         center_chars : ''
     };
 
-    $.extend(config, font_config.carpal);
+    // configuration options
+    var config = {};
+
     // $.extend(config, font_config.underwood);
     // $.extend(config, font_config.atype);
 
@@ -206,9 +187,10 @@ var typewriter = (function($){
         }
     }
 
-    function initialize() {
-        row = 0;
-        col = 0;
+    function initialize(options) {
+        config = $.extend({}, defaultConfig, options);
+
+        row = 0, col = 0;
         $carbon = $('#carbon');
         $cursor = $('<span>', { 'class' : "cursor" });
         $carbon.attr('class', config.font_class);
@@ -290,24 +272,53 @@ var typewriter = (function($){
 
 }(jQuery));
 
+
+
+
 (function($){
+
+    var font_config = {
+        courier  : { },
+        underwood: {
+            font_class: 'underwood',
+            center_chars: '.!\'"',
+            monospaced: false
+        },
+        atype: {
+            font_class: 'atype',
+            col_width : 10,
+            center_chars: '.!\'"',
+            monospaced: false
+        },
+        carpal: {
+            font_class: 'carpal',
+            // col_width : 10,
+            // center_chars: '.!\'"'
+            monospaced: false
+        },
+    };
+
+    var configKey = 'courier';
+    typewriter.initialize(font_config[configKey]);
 
     function fault(message){
         $('.message').hide().text(message).fadeIn();
         setTimeout(function(){ $('.message').fadeOut() }, 1000);
     }
 
-    typewriter.initialize();
-
     $('.unavailable').bind('click', function(e){
         e&&e.preventDefault();
         fault("Not Implemented Yet. Coming in Typester v.0.3!");
     });
 
+    $('select').bind('change', function(e){
+        configKey = $(e.currentTarget).val();
+        typewriter.initialize(font_config[configKey]);
+    });
 
     $('.reset').bind('click', function(e){
         e&&e.preventDefault();
-        typewriter.initialize();
+        typewriter.initialize(font_config[configKey]);
     });
 
     $('.print').bind('click', function(e){
