@@ -20,10 +20,14 @@ var typewriter = (function($){
     var block = false;
 
     var defaultConfig = {
+        // Default "Courier" Config
         font_class : 'courier',
         monospaced : true,
-        row_height : 18,
         col_width  : 11,
+
+        // Less Mutable Options
+        row_height : 18,
+        max_row    : 79,
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
         rate_limit: 50,
@@ -192,7 +196,8 @@ var typewriter = (function($){
         $carbon.attr('class', config.font_class);
         $carbon.html('').append($cursor).append(defspan());
 
-        config.max_row = Math.floor($carbon.height() / config.row_height);
+        // max row isn't dependent on font
+        // config.max_row = Math.floor($carbon.height() / config.row_height);
         config.max_col = Math.floor($carbon.width() / config.col_width);
 
         initializeSoundFX();
@@ -207,21 +212,22 @@ var typewriter = (function($){
         }
 
         $(document).unbind('keypress').bind('keypress',function(e){
-            log.trace("[keypress] " + e.keyCode);
+            // log.trace("[keypress] " + e.keyCode);
+            log.debug("row:"+row+",col:"+col);
             playSound('key'+(1 + Math.floor(Math.random()*5)))
             writeCharacter(String.fromCharCode(e.which));
             $cursor.attr('style', style());
         });
 
         $(document).unbind('keydown').bind('keydown', function (e) {
-            log.trace("[keydown] " + e.keyCode);
+            // log.trace("[keydown] " + e.keyCode);
 
             if (block) {
                 e&&e.preventDefault(); return;
             } else if ($.inArray(e.keyCode, NON_BLOCKING_MODIFIERS) >= 0) {
-                log.debug("Modifier : " + e.keyCode);
+                // log.debug("Modifier : " + e.keyCode);
             } else {
-                log.trace("Blocking...")
+                // log.trace("Blocking...")
                 block = true;
             }
 
@@ -234,9 +240,10 @@ var typewriter = (function($){
 
             if (e.keyCode === RETURN || e.keyCode === BACKSPACE) {
                 e.preventDefault();
+
                  // cleanup. empty spans are just waste.
                 $("span.type").filter(function(){
-                    return $(this).text().replace("&nbsp;","") === ""
+                    return $(this).text().replace("&nbsp;","") === "";
                 }).remove();
 
                 if(config.backspace_over_newline && e.keyCode === BACKSPACE && col === 0){
@@ -247,7 +254,19 @@ var typewriter = (function($){
                 col = e.keyCode === RETURN ? 0 : Math.max(col-1, 0);
                 row = Math.min(config.max_row, e.keyCode === RETURN ? row+1 : row);
 
+                log.debug("row:"+row+",col:"+col);
+
                 playSound(e.keyCode === RETURN ? 'backspace' : 'backspace');
+
+                var offset = Number($('#carbon').css('margin-top').replace('px',''));
+
+                $carbon.height(Math.max($carbon.height(), config.row_height * (row+2)));
+                $carbon.css('margin-top', ($(document).height() - $carbon.height()) - 100 );
+
+                console.log("document.height=",$(document).height());
+                console.log("carbon.height=", $carbon.height());
+                console.log("config.row_height * row=", config.row_height * row);
+                console.log("carbon.margin-top=", offset);
 
                 $carbon.append(defspan());
                 $cursor.attr('style', style());
@@ -255,12 +274,19 @@ var typewriter = (function($){
             }
 
             setTimeout(function(){
-                log.trace("Unblocking");
+                // log.trace("Unblocking");
                 block = false;
             }, config.rate_limit);
 
         });
 
+                console.log("document.height=",$(document).height());
+                console.log("carbon.height=", $carbon.height());
+                console.log("config.row_height * row=", config.row_height * row);
+                console.log("carbon.margin-top=", Number($('#carbon').css('margin-top').replace('px','')));
+
+        // put the first line on the bottom.
+        $carbon.css('margin-top', ($(document).height() - $carbon.height()) - 100 );
         $cursor.attr('style', style());
     }
 

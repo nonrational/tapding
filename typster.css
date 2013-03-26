@@ -5,10 +5,14 @@
     target-new: tab ! important;
 }
 
-.header {
+.machine {
+    position: absolute;
+    width: 500px;
+    margin: auto;
+    bottom: 0;
+
     font-family: Courier;
     vertical-align: middle;
-    border-bottom: 1px dotted black;
     margin-bottom: 10px;
     height: 32px;
 }
@@ -38,21 +42,33 @@ span.type, span.cursor {
     left:0;
     top:0;
 }
-
+/*
 #container {
-    /*80 * 8 = 646*/
-    /*60 * 11 = 660px + 6 pixel padding  = 666px*/
+    80 * 8 = 646
+    60 * 11 = 660px + 6 pixel padding  = 666px
     width: 666px;
+    height
     margin: auto;
-    position: relative;
+    position: absolute;
 }
+*/
+
+/*#floater {
+    position: absolute;
+    height: 100px;
+    bottom: 100px;
+    left: 50%;
+    margin-left: -333px;
+}*/
 
 #carbon {
+    border: 1px solid black;
     margin-top: 10px;
-    height: 900px;
-    /*background-color: #FFFBFE;*/
-/*    border-right: 2px solid #ccc;
-    border-left: 2px solid #ccc;*/
+    height: 20px;
+    margin: auto;
+    width: 666px;
+    /*left: 50%;*/
+    /*margin-left: -333px;*/
     position: relative;
     padding: 0 2px;
 }
