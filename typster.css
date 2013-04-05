@@ -5,6 +5,11 @@
     target-new: tab ! important;
 }
 
+html {
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+}
+
 .machine {
     position: absolute;
     width: 500px;
@@ -63,7 +68,7 @@ span.type, span.cursor {
 
 #carbon {
     border: 1px solid black;
-    margin-top: 10px;
+    /*margin-top: 10px;*/
     height: 20px;
     margin: auto;
     width: 666px;
@@ -71,6 +76,13 @@ span.type, span.cursor {
     /*margin-left: -333px;*/
     position: relative;
     padding: 0 2px;
+}
+
+#absolute {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    margin-left: -333px;
 }
 
 a {

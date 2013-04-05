@@ -196,6 +196,8 @@ var typewriter = (function($){
         $carbon.attr('class', config.font_class);
         $carbon.html('').append($cursor).append(defspan());
 
+        var marginOffset = 0;
+
         // max row isn't dependent on font
         // config.max_row = Math.floor($carbon.height() / config.row_height);
         config.max_col = Math.floor($carbon.width() / config.col_width);
@@ -223,7 +225,8 @@ var typewriter = (function($){
             // log.trace("[keydown] " + e.keyCode);
 
             if (block) {
-                e&&e.preventDefault(); return;
+                e&&e.preventDefault();
+                return;
             } else if ($.inArray(e.keyCode, NON_BLOCKING_MODIFIERS) >= 0) {
                 // log.debug("Modifier : " + e.keyCode);
             } else {
@@ -254,39 +257,29 @@ var typewriter = (function($){
                 col = e.keyCode === RETURN ? 0 : Math.max(col-1, 0);
                 row = Math.min(config.max_row, e.keyCode === RETURN ? row+1 : row);
 
-                log.debug("row:"+row+",col:"+col);
+                // log.debug("row:"+row+",col:"+col);
 
                 playSound(e.keyCode === RETURN ? 'backspace' : 'backspace');
 
+                $carbon.height(Math.max($carbon.height(), config.row_height * (row+1)));
+                $carbon.parent().height($carbon.height());
+                // $carbon.height($carbon.height() + config.row_height);
+
                 var offset = Number($('#carbon').css('margin-top').replace('px',''));
-
-                $carbon.height(Math.max($carbon.height(), config.row_height * (row+2)));
-                $carbon.css('margin-top', ($(document).height() - $carbon.height()) - 100 );
-
-                console.log("document.height=",$(document).height());
-                console.log("carbon.height=", $carbon.height());
-                console.log("config.row_height * row=", config.row_height * row);
-                console.log("carbon.margin-top=", offset);
-
+                var heightOffset = Math.max(0, $(document).height() - $carbon.height());
+                $carbon.css('margin-top', heightOffset + marginOffset);
                 $carbon.append(defspan());
                 $cursor.attr('style', style());
                 scrollTo($cursor);
             }
 
-            setTimeout(function(){
-                // log.trace("Unblocking");
-                block = false;
-            }, config.rate_limit);
-
+            setTimeout(function(){ block = false; }, config.rate_limit);
         });
 
-                console.log("document.height=",$(document).height());
-                console.log("carbon.height=", $carbon.height());
-                console.log("config.row_height * row=", config.row_height * row);
-                console.log("carbon.margin-top=", Number($('#carbon').css('margin-top').replace('px','')));
+        var heightOffset = Math.max(0, $(document).height() - $carbon.height() - 3);
 
         // put the first line on the bottom.
-        $carbon.css('margin-top', ($(document).height() - $carbon.height()) - 100 );
+        $carbon.css('margin-top', heightOffset + marginOffset);
         $cursor.attr('style', style());
     }
 
