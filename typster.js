@@ -1,5 +1,5 @@
 /**
- * Typster v0.1.0
+ * TapDing v0.0.1
  */
 var typewriter = (function($){
     var BACKSPACE = 8;
@@ -17,6 +17,7 @@ var typewriter = (function($){
     // sound effects
     var sfx = [];
     var blinky;
+    // used for ratelimiting
     var block = false;
 
     var defaultConfig = {
@@ -30,7 +31,7 @@ var typewriter = (function($){
         max_row    : 79,
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
-        rate_limit: 50,
+        rate_limit: 15,
         enable_sounds: true,
         auto_scroll_buffer : 300,
         center_chars : ''
@@ -69,19 +70,6 @@ var typewriter = (function($){
     // 80col       - keep hitting the last column
     // jammed      - type two letters next to eachother at once and stop responding
     // bold        - type the same letter over eachother (hard hit)
-
-    function h2c(){
-        if(html2canvas){
-            $cursor.hide()
-            var pwin = window.open('', '_blank', 'location=0');
-            html2canvas($carbon, {
-                onrendered : function(canvas){
-                    pwin.document.body.appendChild(canvas);
-                    $cursor.show();
-                }
-            });
-        }
-    }
 
     // utility functions
     function style(topoff, leftoff){
@@ -213,27 +201,25 @@ var typewriter = (function($){
             }, config.cursor_blink_interval);
         }
 
+        // this actually writes characters onto the paper
         $(document).unbind('keypress').bind('keypress',function(e){
-            // log.trace("[keypress] " + e.keyCode);
             log.debug("row:"+row+",col:"+col);
             playSound('key'+(1 + Math.floor(Math.random()*5)))
             writeCharacter(String.fromCharCode(e.which));
-            $cursor.attr('style', style());
         });
 
         $(document).unbind('keydown').bind('keydown', function (e) {
             // log.trace("[keydown] " + e.keyCode);
 
             if (block) {
-                e&&e.preventDefault();
+                e.preventDefault();
                 return;
-            } else if ($.inArray(e.keyCode, NON_BLOCKING_MODIFIERS) >= 0) {
-                // log.debug("Modifier : " + e.keyCode);
-            } else {
-                // log.trace("Blocking...")
+            } else if ($.inArray(e.keyCode, NON_BLOCKING_MODIFIERS) < 0) {
                 block = true;
+                setTimeout(function(){ block = false; }, config.rate_limit);
             }
 
+            // move right
             if (e.keyCode === SPACEBAR){
                 e.preventDefault();
                 playSound(['spacebar']);
@@ -241,28 +227,30 @@ var typewriter = (function($){
                 $cursor.attr('style', style());
             }
 
+            // move left or down
             if (e.keyCode === RETURN || e.keyCode === BACKSPACE) {
                 e.preventDefault();
-
-                 // cleanup. empty spans are just waste.
+                // auto-cleanup. empty spans are just waste.
                 $("span.type").filter(function(){
                     return $(this).text().replace("&nbsp;","") === "";
                 }).remove();
 
+                // if we're allowed to backspace over newlines, go back to the
+                // previous correct column
                 if(config.backspace_over_newline && e.keyCode === BACKSPACE && col === 0){
+                    col = rowlength[row] ? rowlength[row] + 2 : 0;
                     row = Math.max(row-1, 0);
-                    col = rowlength[row] ? rowlength[row]+2 : 0;
                 }
 
                 col = e.keyCode === RETURN ? 0 : Math.max(col-1, 0);
                 row = Math.min(config.max_row, e.keyCode === RETURN ? row+1 : row);
 
-                // log.debug("row:"+row+",col:"+col);
-
+                // right now, play the same sound for return and backspace
                 playSound(e.keyCode === RETURN ? 'backspace' : 'backspace');
 
                 $carbon.height(Math.max($carbon.height(), config.row_height * (row+1)));
                 $carbon.parent().height($carbon.height());
+
                 // $carbon.height($carbon.height() + config.row_height);
 
                 var offset = Number($('#carbon').css('margin-top').replace('px',''));
@@ -273,7 +261,7 @@ var typewriter = (function($){
                 scrollTo($cursor);
             }
 
-            setTimeout(function(){ block = false; }, config.rate_limit);
+            $cursor.attr('style', style());
         });
 
         var heightOffset = Math.max(0, $(document).height() - $carbon.height() - 3);
@@ -283,14 +271,16 @@ var typewriter = (function($){
         $cursor.attr('style', style());
     }
 
-    return { initialize : initialize, toPdf : h2c};
+    return { initialize : initialize };
 
 }(jQuery));
 
 
-
-
+// initialize everything.
 (function($){
+
+    // these are the different fonts that we can use right now
+    // with configuration override.
 
     var font_config = {
         courier  : { },
@@ -313,32 +303,32 @@ var typewriter = (function($){
         },
     };
 
-    var configKey = 'courier';
-    typewriter.initialize(font_config[configKey]);
+    var fontName = 'courier';
+    typewriter.initialize(font_config[fontName]);
 
+    // Error Handler
     function fault(message){
         $('.message').hide().text(message).fadeIn();
         setTimeout(function(){ $('.message').fadeOut() }, 1000);
     }
 
+    // Event Binding
     $('.unavailable').bind('click', function(e){
         e&&e.preventDefault();
         fault("Not Implemented Yet. Coming in Typester v.0.3!");
     });
-
     $('select').bind('change', function(e){
-        configKey = $(e.currentTarget).val();
-        typewriter.initialize(font_config[configKey]);
+        fontName = $(e.currentTarget).val();
+        typewriter.initialize(font_config[fontName]);
     });
-
     $('.reset').bind('click', function(e){
         e&&e.preventDefault();
-        typewriter.initialize(font_config[configKey]);
+        typewriter.initialize(font_config[fontName]);
     });
-
     $('.print').bind('click', function(e){
         e&&e.preventDefault();
         typewriter.toPdf();
     });
+
 }(jQuery));
 
