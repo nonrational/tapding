@@ -5,12 +5,22 @@
     target-new: tab ! important;
 }
 
-.header {
+html, body {
+    width: 100%;
+    margin: 0;
+}
+
+.machine {
+    width: 100%;
+    position: absolute;
+    bottom: 10px;
     font-family: Courier;
-    vertical-align: middle;
-    border-bottom: 1px dotted black;
-    margin-bottom: 10px;
-    height: 32px;
+    vertical-align: bottom;
+    text-align: center;
+}
+
+.machine .controls {
+    /*margin: auto;*/
 }
 
 .header select {
@@ -29,7 +39,7 @@ span {
 }
 
 span.cursor {
-    border-bottom: 2px dotted black;
+    border-bottom: 1px dotted black;
     /*border-radius: 2px;*/
 }
 
@@ -39,20 +49,11 @@ span.type, span.cursor {
     top:0;
 }
 
-#container {
-    /*80 * 8 = 646*/
-    /*60 * 11 = 660px + 6 pixel padding  = 666px*/
-    width: 666px;
-    margin: auto;
-    position: relative;
-}
-
 #carbon {
     margin-top: 10px;
-    height: 900px;
-    /*background-color: #FFFBFE;*/
-/*    border-right: 2px solid #ccc;
-    border-left: 2px solid #ccc;*/
+    height: 20px;
+    width: 666px;
+    margin: auto;
     position: relative;
     padding: 0 2px;
 }
