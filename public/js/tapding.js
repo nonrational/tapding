@@ -174,7 +174,7 @@ var typewriter = (function($){
         config = $.extend({}, defaultConfig, options);
 
         row = 0, col = 0;
-        $carbon = $('#carbon');
+        $carbon = $('#carbon').height(0);
         $cursor = $('<span>', { 'class' : "cursor" });
         $carbon.attr('class', config.font_class);
         $carbon.html('').append($cursor).append(defspan());
@@ -192,7 +192,8 @@ var typewriter = (function($){
         config.max_row = calculateHeight();
         config.max_col = Math.floor($carbon.width() / config.col_width);
 
-        $(window).unbind('resize').resize(function(){ config.max_row = calculateHeight(); });
+        $(window).unbind('resize')
+            .resize(function(){ config.max_row = calculateHeight(); });
 
         initializeSoundFX();
         scrollTo($('head'));
