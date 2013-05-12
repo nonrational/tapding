@@ -180,6 +180,7 @@ var typewriter = (function($){
         $carbon.html('').append($cursor).append(defspan());
 
         function calculateHeight(){
+            // var rows = Math.floor(($(document).height()-$('.machine').height()) / config.row_height) - 2;
             var rows = Math.floor(($(document).height()-$('.machine').height()) / config.row_height) - 2;
             if(rows < 30){
                 log.error("Your configured window size is too small.")
@@ -248,6 +249,7 @@ var typewriter = (function($){
                 playSound(e.keyCode === RETURN ? 'backspace' : 'backspace');
 
                 $carbon.css('height', row * config.row_height);
+                $('#feed').css('height', row * config.row_height);
                 $carbon.append(defspan());
                 $cursor.attr('style', style());
                 scrollTo($cursor);

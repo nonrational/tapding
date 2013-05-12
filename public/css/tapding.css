@@ -8,7 +8,7 @@
 html, body {
     width: 100%;
     margin: 0;
-    overflow-y: scroll;
+    /*overflow-y: scroll;*/
 }
 
 #feed {
@@ -19,7 +19,6 @@ html, body {
 
 #carbon {
     width: 666px;
-    /*position: relative;*/
     position: absolute;
     bottom: 80px;
 }
@@ -36,7 +35,6 @@ html, body {
 
 .machine .controls {
     height: 18px;
-    /*margin-bottom: -10px;*/
 }
 
 .machine select {
@@ -119,9 +117,7 @@ a.unavailable:hover {
     -moz-transform: rotate(3deg); /* Firefox */
 }
 
-.left-shift, .right-shift {
-
-}
+.left-shift, .right-shift {}
 
 #messages {
     height: 20px;
