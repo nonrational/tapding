@@ -27,7 +27,7 @@ var typewriter = (function($){
         row_height : 18,
         col_width  : 11,
         backspace_over_newline : true,
-        cursor_blink_interval : 0, // 500
+        cursor_blink_interval : 500, // 500
         rate_limit: 15,
         enable_sounds: true,
         auto_scroll_buffer : 300,
@@ -179,8 +179,19 @@ var typewriter = (function($){
         $carbon.attr('class', config.font_class);
         $carbon.html('').append($cursor).append(defspan());
 
-        config.max_row = Math.floor($carbon.height() / config.row_height);
+        function calculateHeight(){
+            var rows = Math.floor(($(document).height()-$('.machine').height()) / config.row_height) - 2;
+            if(rows < 30){
+                log.error("Your configured window size is too small.")
+            }
+            return rows;
+        }
+
+        // config.max_row = Math.floor($carbon.height() / config.row_height);
+        config.max_row = calculateHeight();
         config.max_col = Math.floor($carbon.width() / config.col_width);
+
+        $(window).unbind('resize').resize(function(){ config.max_row = calculateHeight(); });
 
         initializeSoundFX();
         scrollTo($('head'));
@@ -236,6 +247,7 @@ var typewriter = (function($){
 
                 playSound(e.keyCode === RETURN ? 'backspace' : 'backspace');
 
+                $carbon.css('height', row * config.row_height);
                 $carbon.append(defspan());
                 $cursor.attr('style', style());
                 scrollTo($cursor);
@@ -254,8 +266,6 @@ var typewriter = (function($){
     return { initialize : initialize };
 
 }(jQuery));
-
-
 
 
 (function($){

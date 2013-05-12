@@ -8,6 +8,20 @@
 html, body {
     width: 100%;
     margin: 0;
+    overflow-y: scroll;
+}
+
+#feed {
+    position: static;
+    margin: auto;
+    width: 700px;
+}
+
+#carbon {
+    width: 666px;
+    /*position: relative;*/
+    position: absolute;
+    bottom: 80px;
 }
 
 .machine {
@@ -17,20 +31,33 @@ html, body {
     font-family: Courier;
     vertical-align: bottom;
     text-align: center;
+    border-top: 1px solid black;
 }
 
 .machine .controls {
-    /*margin: auto;*/
+    height: 18px;
+    /*margin-bottom: -10px;*/
 }
 
-.header select {
+.machine select {
     vertical-align: top;
-    margin-top: 6px;
+    margin-top:  4px;
     margin-left: 6px;
 }
 
+.machine ul {
+    list-style: none;
+    display: inline-block;
+    /*margin-top: 25px;*/
+}
+
+.machine li {
+    float: left;
+    margin-right: 10px;
+}
+
 h2 {
-    font-size: 36px;
+    font-size: 24px;
     display: inline-block;
 }
 
@@ -47,15 +74,6 @@ span.type, span.cursor {
     position: absolute;
     left:0;
     top:0;
-}
-
-#carbon {
-    margin-top: 10px;
-    height: 20px;
-    width: 666px;
-    margin: auto;
-    position: relative;
-    padding: 0 2px;
 }
 
 a {
@@ -78,18 +96,6 @@ a.unavailable {
 
 a.unavailable:hover {
     text-decoration: line-through;
-}
-
-ul {
-    list-style: none;
-    display: inline-block;
-    float: right;
-    margin-top: 15px;
-}
-
-li {
-    float: left;
-    margin-right: 10px;
 }
 
 .blur {
@@ -117,12 +123,8 @@ li {
 
 }
 
-input {
-    width: 642px;
-}
-
 #messages {
-    height:20px;
+    height: 20px;
 }
 
 .message {
@@ -133,4 +135,3 @@ input {
     text-align: center;
     font-size: 14px;
 }
-
