@@ -1,14 +1,14 @@
 use Rack::Static,
   :urls => ["/sfx", "/fonts"],
-  :root => "public"
+  :root => ""
 
 run lambda { |env|
   [
     200,
     {
-      'Content-Type'  => 'text/html',
-      'Cache-Control' => 'public, max-age=86400'
+      'Content-Type'  => 'text/html'
+      # 'Cache-Control' => 'public, max-age=86400'
     },
-    File.open('public/index.html', File::RDONLY)
+    File.open('index.html', File::RDONLY)
   ]
 }
