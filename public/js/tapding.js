@@ -181,7 +181,7 @@ var typewriter = (function($){
 
         function calculateHeight(){
             // var rows = Math.floor(($(document).height()-$('.machine').height()) / config.row_height) - 2;
-            var rows = Math.floor(($(document).height()-$('.machine').height()) / config.row_height) - 2;
+            var rows = Math.floor(($(document).height()-$('.machine').height()) / config.row_height) - 4;
             if(rows < 30){
                 log.error("Your configured window size is too small.")
             }

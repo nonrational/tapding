@@ -21,6 +21,8 @@ html, body {
     width: 666px;
     position: absolute;
     bottom: 80px;
+    padding: 30px 12px 0 0;
+    background-color: #FEFFEF;
 }
 
 .machine {
