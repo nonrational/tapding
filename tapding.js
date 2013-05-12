@@ -17,6 +17,8 @@ var typewriter = (function($){
     // sound effects
     var sfx = [];
     var blinky;
+
+    // used to implement config.rate_limit
     var block = false;
 
     var defaultConfig = {
@@ -26,7 +28,7 @@ var typewriter = (function($){
         col_width  : 11,
         backspace_over_newline : true,
         cursor_blink_interval : 0, // 500
-        rate_limit: 50,
+        rate_limit: 15,
         enable_sounds: true,
         auto_scroll_buffer : 300,
         center_chars : ''
@@ -66,19 +68,6 @@ var typewriter = (function($){
     // jammed      - type two letters next to eachother at once and stop responding
     // bold        - type the same letter over eachother (hard hit)
 
-    function h2c(){
-        if(html2canvas){
-            $cursor.hide()
-            var pwin = window.open('', '_blank', 'location=0');
-            html2canvas($carbon, {
-                onrendered : function(canvas){
-                    pwin.document.body.appendChild(canvas);
-                    $cursor.show();
-                }
-            });
-        }
-    }
-
     // utility functions
     function style(topoff, leftoff){
         var top  = ((config.row_height * row) + (topoff  ? topoff  : 0)) + 'px;';
@@ -87,16 +76,13 @@ var typewriter = (function($){
         var topLeft = 'top:' + top + ' left:' + left;
         var widthHeight =  'width:' + config.col_width + 'px; height:' + config.row_height + 'px;'
 
-        return  topLeft + ' ' + widthHeight;
+        var resultingStyle = topLeft + ' ' + widthHeight;
+        log.debug('style: ' + resultingStyle)
+        return resultingStyle;
     }
 
-    function lastSpan(){
-        return $('#carbon span.type:last-child');
-    }
-
-    function defspan(topoff, leftoff){
-        return $('<span>', { 'class' : "type none", 'style' : style(topoff, leftoff) });
-    }
+    function lastSpan(){ return $('#carbon span.type:last-child'); }
+    function defspan(topoff, leftoff){ return $('<span>', { 'class' : "type none", 'style' : style(topoff, leftoff) }); }
 
     function writeCharacter(char){
         var $next = lastSpan();
@@ -143,14 +129,15 @@ var typewriter = (function($){
             playSound('return');
         }
 
-        $next.append(char);
-
-        // TODO sometimes type a blank or a faded letter.
-        // only move the cursor if we're not at the end of the page
         if(col < config.max_col){
             rowlength[row] = col;
             col++;
+        } else {
+            $next = defspan();
+            $carbon.append($next);
         }
+
+        $next.append(char);
     }
 
     function initializeSoundFX(){
@@ -264,7 +251,7 @@ var typewriter = (function($){
         $cursor.attr('style', style());
     }
 
-    return { initialize : initialize, toPdf : h2c};
+    return { initialize : initialize };
 
 }(jQuery));
 
