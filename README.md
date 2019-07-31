@@ -1,8 +1,8 @@
-tapding
-=======
-a typewriter for chrome (and maybe eventually firefox and safari)
+# tapding
 
-### Getting Started
+an ugly, annoying typewriter for chrome (and maybe eventually firefox and safari).
 
-1. `bundle install --binstubs ./bin`
-1. `rackup`
+## Local Development
+
+`./serve`
+
