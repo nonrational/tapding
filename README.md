@@ -6,3 +6,6 @@ an ugly, annoying typewriter for chrome (and maybe eventually firefox and safari
 
 `./serve`
 
+## Demo
+
+![](https://i.imgur.com/3amGOiz.gif)
