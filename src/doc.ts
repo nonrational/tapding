@@ -92,14 +92,14 @@ export class Doc {
     return {
       seed: this.seed,
       font: this.font,
-      strikes: this.strikes,
+      strikes: [...this.strikes],
       carriage: this.carriage,
     };
   }
 
   static fromState(s: DocState): Doc {
     const d = new Doc(s.seed, s.font);
-    d.strikes = s.strikes;
+    d.strikes = [...s.strikes];
     d.carriage = { ...s.carriage };
     return d;
   }
