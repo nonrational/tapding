@@ -65,8 +65,26 @@ export class Doc {
   }
 
   carriageBack(): void {
-    if (this.carriage.col > 0) this.carriage.col--;
+    const c = this.carriage;
+    if (c.col > 0) {
+      c.col--;
+    } else if (c.row > 0) {
+      c.row--;
+      c.col = this.endOfLine(c.page, c.row);
+    } else if (c.page > 0) {
+      c.page--;
+      c.row = PAGE.rows - 1;
+      c.col = this.endOfLine(c.page, c.row);
+    }
     this.emit("move");
+  }
+
+  private endOfLine(page: number, row: number): number {
+    let max = -1;
+    for (const s of this.strikes) {
+      if (s.page === page && s.row === row && s.col > max) max = s.col;
+    }
+    return Math.min(max + 1, PAGE.cols);
   }
 
   carriageReturn(): void {

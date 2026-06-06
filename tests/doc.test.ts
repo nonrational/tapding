@@ -49,10 +49,26 @@ describe("carriageBack (no delete)", () => {
     expect(d.strikes).toHaveLength(2); // nothing erased
   });
 
-  it("never moves past the left margin", () => {
+  it("never moves past the left margin on the first line", () => {
     const d = newDoc();
     d.carriageBack();
-    expect(d.carriage.col).toBe(0);
+    expect(d.carriage).toMatchObject({ page: 0, row: 0, col: 0 });
+  });
+
+  it("from column 0 jumps to the end of the previous line", () => {
+    const d = newDoc();
+    d.strike("h");
+    d.strike("i");
+    d.carriageReturn(); // now at row 1, col 0
+    d.carriageBack();
+    expect(d.carriage).toMatchObject({ page: 0, row: 0, col: 2 });
+  });
+
+  it("from column 0 on an empty previous line lands at column 0 of that line", () => {
+    const d = newDoc();
+    d.carriageReturn(); // row 1 col 0, previous row has no strikes
+    d.carriageBack();
+    expect(d.carriage).toMatchObject({ page: 0, row: 0, col: 0 });
   });
 });
 
