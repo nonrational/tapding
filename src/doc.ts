@@ -46,11 +46,13 @@ export class Doc {
   }
 
   strike(char: string): void {
-    const { page, row, col } = this.carriage;
+    const { page, row } = this.carriage;
+    const locked = this.carriage.col >= PAGE.cols;
+    const col = locked ? PAGE.cols - 1 : this.carriage.col;
     const jitter = computeJitter(this.seed, page, row, col);
     this.strikes.push({ char, page, row, col, jitter });
     this.emit("strike");
-    this.advance();
+    if (!locked) this.advance();
   }
 
   space(): void {
@@ -58,10 +60,7 @@ export class Doc {
   }
 
   tab(): void {
-    const target = Math.min(
-      (Math.floor(this.carriage.col / TAB_STOP) + 1) * TAB_STOP,
-      PAGE.cols - 1,
-    );
+    const target = Math.min((Math.floor(this.carriage.col / TAB_STOP) + 1) * TAB_STOP, PAGE.cols);
     while (this.carriage.col < target) this.advance();
   }
 
@@ -106,10 +105,7 @@ export class Doc {
 
   private advance(): void {
     const c = this.carriage;
-    if (c.col >= PAGE.cols - 1) {
-      this.emit("move");
-      return; // locked at the right edge
-    }
+    if (c.col >= PAGE.cols) return;
     c.col++;
     if (c.col === PAGE.bellCol) this.emit("bell");
     this.emit("move");

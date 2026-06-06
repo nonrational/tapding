@@ -32,7 +32,7 @@ describe("Renderer", () => {
     d.strike("a"); // at col 0
     d.strike("b"); // at col 1
     const second = root.querySelectorAll<HTMLElement>(".glyph")[1];
-    expect(second.style.left).toBe(`${1 * PAGE.colWidth}px`);
+    expect(second.style.left).toBe(`${PAGE.marginX + 1 * PAGE.colWidth}px`);
   });
 
   it("adds a second sheet after pagination", () => {

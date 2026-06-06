@@ -1,15 +1,19 @@
 // US Letter at a 10 cpi / 6 lpi typewriter grid, rendered at 96dpi.
-// 8.5in x 11in => 816 x 1056 px. 816/85 = 9.6, 1056/66 = 16.
+// Sheet: 8.5in x 11in => 816 x 1056 px.
+// Top/left/bottom inset by 0.5in (48px). The bell at bellCol warns the typist;
+// the carriage locks at cols, refusing further strikes until carriage return.
 export const PAGE = {
-  cols: 85,
-  rows: 66,
+  cols: 80,
+  rows: 60,
   colWidth: 9.6,
   rowHeight: 16,
-  bellCol: 78,
+  bellCol: 73,
+  marginX: 48,
+  marginY: 48,
 } as const;
 
-export const SHEET_W = PAGE.cols * PAGE.colWidth;
-export const SHEET_H = PAGE.rows * PAGE.rowHeight;
+export const SHEET_W = 816;
+export const SHEET_H = 1056;
 
 export interface Jitter {
   dx: number;
@@ -42,9 +46,9 @@ function hash(...nums: number[]): number {
 export function computeJitter(seed: number, page: number, row: number, col: number): Jitter {
   const r = seededRandom(hash(seed, page, row, col));
   return {
-    dx: (r() - 0.5) * 1.6,
-    dy: (r() - 0.5) * 2.2,
-    rot: (r() - 0.5) * 2.4,
-    ink: 0.78 + r() * 0.22,
+    dx: (r() - 0.5) * 0.8,
+    dy: (r() - 0.5) * 1.1,
+    rot: (r() - 0.5) * 1.2,
+    ink: 0.89 + r() * 0.11,
   };
 }

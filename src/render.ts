@@ -54,8 +54,8 @@ export class Renderer {
     const el = document.createElement("span");
     el.className = "glyph";
     el.textContent = s.char;
-    el.style.left = `${s.col * PAGE.colWidth}px`;
-    el.style.top = `${s.row * PAGE.rowHeight}px`;
+    el.style.left = `${PAGE.marginX + s.col * PAGE.colWidth}px`;
+    el.style.top = `${PAGE.marginY + s.row * PAGE.rowHeight}px`;
     el.style.opacity = String(s.jitter.ink);
     el.style.transform = `translate(${s.jitter.dx}px, ${s.jitter.dy}px) rotate(${s.jitter.rot}deg)`;
     this.sheets[s.page].appendChild(el);
@@ -65,8 +65,9 @@ export class Renderer {
     const c = this.doc.carriage;
     while (this.sheets.length <= c.page) this.addSheet();
     this.sheets[c.page].appendChild(this.cursor);
-    this.cursor.style.left = `${c.col * PAGE.colWidth}px`;
-    this.cursor.style.top = `${c.row * PAGE.rowHeight}px`;
+    const displayCol = Math.min(c.col, PAGE.cols - 1);
+    this.cursor.style.left = `${PAGE.marginX + displayCol * PAGE.colWidth}px`;
+    this.cursor.style.top = `${PAGE.marginY + c.row * PAGE.rowHeight}px`;
     this.cursor.style.width = `${PAGE.colWidth}px`;
     this.cursor.style.height = `${PAGE.rowHeight}px`;
     this.cursor.scrollIntoView?.({ block: "nearest" });

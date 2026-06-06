@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { seededRandom, computeJitter, PAGE, SHEET_W, SHEET_H } from "../src/geometry";
 
 describe("PAGE geometry", () => {
-  it("derives sheet pixel size from the grid", () => {
-    expect(SHEET_W).toBe(PAGE.cols * PAGE.colWidth);
-    expect(SHEET_H).toBe(PAGE.rows * PAGE.rowHeight);
+  it("is US Letter at 96dpi", () => {
+    expect(SHEET_W).toBe(816);
+    expect(SHEET_H).toBe(1056);
   });
   it("rings the bell before the right edge", () => {
     expect(PAGE.bellCol).toBeLessThan(PAGE.cols);
@@ -37,10 +37,10 @@ describe("computeJitter", () => {
   it("varies between cells", () => {
     expect(computeJitter(99, 0, 1, 2)).not.toEqual(computeJitter(99, 0, 1, 3));
   });
-  it("keeps ink in the subtle band [0.78, 1.0]", () => {
+  it("keeps ink in the subtle band [0.89, 1.0]", () => {
     for (let c = 0; c < 100; c++) {
       const j = computeJitter(5, 0, 0, c);
-      expect(j.ink).toBeGreaterThanOrEqual(0.78);
+      expect(j.ink).toBeGreaterThanOrEqual(0.89);
       expect(j.ink).toBeLessThanOrEqual(1.0);
     }
   });

@@ -99,10 +99,20 @@ describe("right margin", () => {
     expect(seen).toContain("bell");
   });
 
-  it("locks at the last column instead of overflowing", () => {
+  it("overstrikes the last cell when locked at the right margin", () => {
     const d = newDoc();
     for (let i = 0; i < PAGE.cols + 10; i++) d.strike("x");
-    expect(d.carriage.col).toBe(PAGE.cols - 1);
+    expect(d.carriage.col).toBe(PAGE.cols);
+    expect(d.strikes).toHaveLength(PAGE.cols + 10);
+    const overstrikes = d.strikes.filter((s) => s.col === PAGE.cols - 1);
+    expect(overstrikes).toHaveLength(11); // the original + 10 overstrikes
+  });
+
+  it("tab stops at the right margin instead of overshooting", () => {
+    const d = newDoc();
+    for (let i = 0; i < PAGE.cols - 1; i++) d.space();
+    d.tab();
+    expect(d.carriage.col).toBe(PAGE.cols);
   });
 });
 
