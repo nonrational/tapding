@@ -1,54 +1,16 @@
 <!doctype html>
-<html>
-<head>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>tapding</title>
-    <link rel="stylesheet" href="fonts/families.css">
-    <link rel="stylesheet" href="css/tapding.css">
-    <meta name="viewport" content="width=device-width, initial-scale=.3, maximum-scale=1, user-scalable=0"/>
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-40872420-1', 'tapding.com');
-      ga('send', 'pageview');
-
-    </script>
-</head>
-<body>
-
-    <div id="feed">
-        <div id="carbon">
-            <span class='type none'></span>
-            <span class='cursor'></span>
-        </div>
-    </div>
-
-    <div class="machine">
-        <div id="messages">
-            <p class='message'></p>
-        </div>
-        <div class="controls">
-            <h2>tapding v0.0.1</h2>
-            <select>
-                <option value="courier">Courier (Default)</option>
-                <option value="underwood">My Underwood</option>
-                <option value="atype">Another Typewriter</option>
-                <option value="carpal">Carpal Tunnel</option>
-            </select>
-            <ul>
-                <li><a href="#" class="save unavailable">save</a></li>
-                <li><a href="#" class="reset">clear</a></li>
-                <li><a href="#" class="print">print</a></li>
-            </ul>
-        </div>
-    </div>
-
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="js/html2canvas.min.js"></script>
-    <script src="js/audio-fx.min.js"></script>
-    <script src="js/tapding.js"></script>
-</body>
+    <link rel="stylesheet" href="/styles/fonts.css" />
+    <link rel="stylesheet" href="/styles/app.css" />
+    <link rel="stylesheet" href="/styles/print.css" media="print" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

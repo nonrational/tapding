@@ -1,0 +1,39 @@
+@page {
+  size: letter;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .controls,
+  .cursor {
+    display: none !important;
+  }
+
+  .desk {
+    padding: 0;
+    display: block;
+  }
+
+  #feed {
+    display: block;
+    gap: 0;
+  }
+
+  .sheet {
+    background: #fff;
+    background-image: none;
+    box-shadow: none;
+    border-radius: 0;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .glyph {
+    color: #000;
+    opacity: 1 !important;
+  }
+}
