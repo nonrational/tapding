@@ -28,6 +28,7 @@
     background-image: none;
     box-shadow: none;
     border-radius: 0;
+    transform: none !important;
     page-break-after: always;
     break-after: page;
   }
