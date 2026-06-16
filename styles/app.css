@@ -136,3 +136,8 @@ body {
   margin: 0;
   opacity: 0.85;
 }
+
+/* Mirror the live typewriter cursor's blink for the heading's trailing underscore. */
+.blink-cursor {
+  animation: blink 1s steps(2, start) infinite;
+}
