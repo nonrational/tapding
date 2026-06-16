@@ -41,4 +41,11 @@ describe("Renderer", () => {
     for (let i = 0; i < PAGE.rows; i++) d.carriageReturn();
     expect(root.querySelectorAll(".sheet")).toHaveLength(2);
   });
+
+  it("rotates each sheet by a fixed skew angle", () => {
+    const d = new Doc(1, "courier");
+    new Renderer(root).attach(d);
+    const sheet = root.querySelector<HTMLElement>(".sheet")!;
+    expect(sheet.style.transform).toMatch(/^rotate\(-?\d/);
+  });
 });

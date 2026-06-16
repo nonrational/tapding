@@ -1,5 +1,5 @@
 import type { Doc, Strike } from "./doc";
-import { PAGE, SHEET_W, SHEET_H } from "./geometry";
+import { PAGE, SHEET_W, SHEET_H, pageSkew } from "./geometry";
 import { fontById } from "./fonts";
 
 export class Renderer {
@@ -45,6 +45,9 @@ export class Renderer {
     sheet.className = "sheet";
     sheet.style.width = `${SHEET_W}px`;
     sheet.style.height = `${SHEET_H}px`;
+    const page = this.sheets.length;
+    sheet.style.transformOrigin = "center";
+    sheet.style.transform = `rotate(${pageSkew(this.doc.seed, page)}deg)`;
     this.root.appendChild(sheet);
     this.sheets.push(sheet);
   }
