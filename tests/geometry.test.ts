@@ -57,9 +57,28 @@ describe("pageSkew", () => {
     }
   });
 
-  it("varies from page to page", () => {
+  it("leaves most pages perfectly straight", () => {
+    let crooked = 0;
+    for (let page = 0; page < 100; page++) if (pageSkew(42, page) !== 0) crooked++;
+    expect(crooked).toBeGreaterThan(0); // it does happen
+    expect(crooked).toBeLessThan(25); // but it's the rare exception
+  });
+
+  it("tilts roughly one page in ten across a large sample", () => {
+    const N = 2000;
+    let crooked = 0;
+    for (let page = 0; page < N; page++) if (pageSkew(7, page) !== 0) crooked++;
+    const rate = crooked / N;
+    expect(rate).toBeGreaterThan(0.06);
+    expect(rate).toBeLessThan(0.15);
+  });
+
+  it("gives crooked pages a varied angle", () => {
     const angles = new Set<number>();
-    for (let page = 0; page < 10; page++) angles.add(pageSkew(42, page));
+    for (let page = 0; page < 500; page++) {
+      const a = pageSkew(42, page);
+      if (a !== 0) angles.add(a);
+    }
     expect(angles.size).toBeGreaterThan(1);
   });
 });

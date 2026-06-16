@@ -28,19 +28,15 @@
     break-after: page;
   }
 
-  /* The artifact: the page is squared up (as if pulled off the roller), so the paper
-     loses its on-screen tilt... */
+  /* The artifact is the typed ink, nothing else — drop the paper entirely so the PDF
+     carries no sheet background, shadow, or border. */
   .paper {
-    background: #fff;
-    background-image: none;
-    box-shadow: none;
-    border-radius: 0;
-    transform: none;
+    display: none;
   }
 
-  /* ...and the typing keeps the crooked angle it was struck at — the negative of the
-     on-screen paper skew, since we've rotated the page back to square. Transforms
-     don't affect pagination, so the page break still lands on the un-rotated box. */
+  /* The typing keeps the crooked angle it was struck at — the negative of the on-screen
+     paper skew, since the page is squared up. Transforms don't affect pagination, so the
+     page break still lands on the un-rotated box. */
   .platen {
     transform: rotate(calc(-1 * var(--skew, 0deg)));
   }
