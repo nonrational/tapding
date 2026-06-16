@@ -9,7 +9,9 @@
 
 Each sheet rolls into the platen at a small, **fixed random angle** and stays put — no
 live drift while typing. A page always sits at the same angle across reloads, the same
-way per-cell jitter is stable. Printed output stays square.
+way per-cell jitter is stable. The skew is **baked into the printed artifact** too: once
+the paper is crooked in the platen, you can't straighten it after the fact — the same
+no-delete spirit as the rest of the machine.
 
 ## Decisions (locked)
 
@@ -19,7 +21,7 @@ way per-cell jitter is stable. Printed output stays square.
 | Magnitude | `±1.5°` max — subtle. Tunable via a `SKEW_MAX_DEG` constant in `geometry.ts`. |
 | Motion | None. The angle is set once when the sheet is added; no animation or drift while typing. |
 | Pivot | Rotate about the sheet **center** (`transform-origin: center`). |
-| Print | `print.css` zeroes the skew so printed sheets are square. |
+| Print | The skew **carries into the printed PDF** — it's part of the artifact's charm, not screen-only chrome. CSS transforms don't affect pagination, so the page break still lands on the un-rotated box (no blank pages). |
 | Out of scope | Live "settling" animation, skew that responds to typing, per-page persisted angle values (the seed already makes it deterministic — nothing new to store). |
 
 ### Why no new persisted state
@@ -55,8 +57,9 @@ render.addSheet(page) ─▶ pageSkew(doc.seed, page) ─▶ sheet.style.transfo
 
 ### `styles/print.css`
 
-- Add `.sheet { transform: none !important; }` inside `@media print` so printed pages are
-  square regardless of screen skew.
+- **No skew-cancelling rule.** The screen `transform: rotate()` is inherited in print, so
+  the printed sheets carry the same per-page angle. (Edge glyphs near a corner can clip a
+  few px at the page boundary at ±1.5° — acceptable, and on-theme.)
 
 ## Testing
 
@@ -73,5 +76,5 @@ render.addSheet(page) ─▶ pageSkew(doc.seed, page) ─▶ sheet.style.transfo
 1. Each sheet sits at a small fixed angle; reloading the page reproduces the same angles.
 2. The angle never exceeds `±1.5°`, and pages differ from one another.
 3. No drift or animation while typing.
-4. Print preview shows square sheets.
+4. Print preview / exported PDF shows the same per-page skew as the screen.
 5. `npm test` passes; `npm run build` succeeds.

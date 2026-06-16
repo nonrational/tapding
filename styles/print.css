@@ -28,7 +28,9 @@
     background-image: none;
     box-shadow: none;
     border-radius: 0;
-    transform: none !important;
+    /* Keep the per-page skew in the printed artifact — once it's crooked in the
+       platen, you can't straighten it after the fact. Transforms don't affect
+       pagination, so the page break still lands on the un-rotated box. */
     page-break-after: always;
     break-after: page;
   }
