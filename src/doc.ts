@@ -1,11 +1,14 @@
 import { PAGE, computeJitter, type Jitter } from "./geometry";
 
+export type Ribbon = "black" | "red";
+
 export interface Strike {
   char: string;
   page: number;
   row: number;
   col: number;
   jitter: Jitter;
+  ribbon: Ribbon;
 }
 
 export interface Carriage {
@@ -17,17 +20,19 @@ export interface Carriage {
 export interface DocState {
   seed: number;
   font: string;
+  ribbon: Ribbon;
   strikes: Strike[];
   carriage: Carriage;
 }
 
-export type DocEvent = "strike" | "move" | "bell" | "return" | "newpage";
+export type DocEvent = "strike" | "move" | "bell" | "return" | "newpage" | "ribbon";
 
 const TAB_STOP = 8;
 
 export class Doc {
   seed: number;
   font: string;
+  ribbon: Ribbon = "black";
   strikes: Strike[] = [];
   carriage: Carriage = { page: 0, row: 0, col: 0 };
   private listeners: ((e: DocEvent) => void)[] = [];
@@ -50,13 +55,19 @@ export class Doc {
     const locked = this.carriage.col >= PAGE.cols;
     const col = locked ? PAGE.cols - 1 : this.carriage.col;
     const jitter = computeJitter(this.seed, page, row, col);
-    this.strikes.push({ char, page, row, col, jitter });
+    this.strikes.push({ char, page, row, col, jitter, ribbon: this.ribbon });
     this.emit("strike");
     if (!locked) this.advance();
   }
 
   space(): void {
     this.advance();
+  }
+
+  toggleRibbon(): Ribbon {
+    this.ribbon = this.ribbon === "black" ? "red" : "black";
+    this.emit("ribbon");
+    return this.ribbon;
   }
 
   tab(): void {
@@ -109,6 +120,7 @@ export class Doc {
     return {
       seed: this.seed,
       font: this.font,
+      ribbon: this.ribbon,
       strikes: [...this.strikes],
       carriage: this.carriage,
     };
@@ -116,7 +128,8 @@ export class Doc {
 
   static fromState(s: DocState): Doc {
     const d = new Doc(s.seed, s.font);
-    d.strikes = [...s.strikes];
+    d.ribbon = s.ribbon ?? "black";
+    d.strikes = s.strikes.map((st) => ({ ...st, ribbon: st.ribbon ?? "black" }));
     d.carriage = { ...s.carriage };
     return d;
   }

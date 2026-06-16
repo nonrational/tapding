@@ -23,11 +23,13 @@ function boot(): void {
 
   let doc = makeDoc();
   ui.fontSelect.value = doc.font;
+  ui.setRibbon(doc.ribbon);
   renderer.attach(doc);
 
   const wireDoc = (d: Doc) => {
     d.on((e) => {
       if (e === "bell") audio.bell();
+      if (e === "ribbon") ui.setRibbon(d.ribbon);
       saveDoc(d);
     });
   };
@@ -52,7 +54,13 @@ function boot(): void {
     doc = new Doc(newSeed(), doc.font);
     wireDoc(doc);
     renderer.attach(doc);
+    ui.setRibbon(doc.ribbon);
     detach = attachInput({ doc, audio, onActivity: ui.flashActivity });
+  });
+
+  ui.inkBtn.addEventListener("click", () => {
+    doc.toggleRibbon();
+    ui.flashActivity();
   });
 
   ui.printBtn.addEventListener("click", () => window.print());
