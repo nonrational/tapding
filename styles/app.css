@@ -113,7 +113,16 @@ body {
   padding: 4px 6px;
 }
 
+a.ctl { text-decoration: none; }
 .ctl:hover { text-decoration: underline; }
+
+.ctl-source {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.55;
+}
+
+.ctl-source:hover { opacity: 1; }
 
 .ctl-ink {
   display: inline-flex;
