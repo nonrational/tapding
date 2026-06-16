@@ -1,6 +1,7 @@
 :root {
   --paper: #fbf8ee;
   --ink: #1a1714;
+  --ink-red: #b3261e;
   --desk-1: #efe9dc;
   --desk-2: #ddd5c4;
 }
@@ -55,6 +56,10 @@ body {
   pointer-events: none;
 }
 
+.glyph.ink-red {
+  color: var(--ink-red);
+}
+
 .cursor {
   position: absolute;
   border-bottom: 1.5px solid var(--ink);
@@ -94,3 +99,22 @@ body {
 }
 
 .ctl:hover { text-decoration: underline; }
+
+.ctl-ink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ink-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+}
+
+.ink-swatch[data-color="red"] {
+  background: var(--ink-red);
+  border-color: var(--ink-red);
+}
