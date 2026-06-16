@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { seededRandom, computeJitter, PAGE, SHEET_W, SHEET_H } from "../src/geometry";
+import { seededRandom, computeJitter, pageSkew, SKEW_MAX_DEG, PAGE, SHEET_W, SHEET_H } from "../src/geometry";
 
 describe("PAGE geometry", () => {
   it("is US Letter at 96dpi", () => {
@@ -43,5 +43,23 @@ describe("computeJitter", () => {
       expect(j.ink).toBeGreaterThanOrEqual(0.89);
       expect(j.ink).toBeLessThanOrEqual(1.0);
     }
+  });
+});
+
+describe("pageSkew", () => {
+  it("is deterministic for a given seed and page", () => {
+    expect(pageSkew(42, 3)).toBe(pageSkew(42, 3));
+  });
+
+  it("stays within ±SKEW_MAX_DEG", () => {
+    for (let page = 0; page < 200; page++) {
+      expect(Math.abs(pageSkew(42, page))).toBeLessThanOrEqual(SKEW_MAX_DEG);
+    }
+  });
+
+  it("varies from page to page", () => {
+    const angles = new Set<number>();
+    for (let page = 0; page < 10; page++) angles.add(pageSkew(42, page));
+    expect(angles.size).toBeGreaterThan(1);
   });
 });
