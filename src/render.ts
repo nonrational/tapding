@@ -1,11 +1,14 @@
 import type { Doc, Strike } from "./doc";
-import { PAGE, SHEET_W, SHEET_H } from "./geometry";
+import { PAGE, SHEET_W, SHEET_H, pageSkew } from "./geometry";
 import { fontById } from "./fonts";
 
 export class Renderer {
   private root: HTMLElement;
   private cursor: HTMLElement;
   private sheets: HTMLElement[] = [];
+  // The text layer inside each sheet. On screen it stays square while the paper
+  // tilts; in print it carries the angle while the paper is square (see the CSS).
+  private platens: HTMLElement[] = [];
   private doc!: Doc;
 
   constructor(root: HTMLElement) {
@@ -27,6 +30,7 @@ export class Renderer {
   renderAll(): void {
     this.root.innerHTML = "";
     this.sheets = [];
+    this.platens = [];
     const font = fontById(this.doc.font);
     this.root.style.setProperty("--type-family", font.family);
     this.root.style.setProperty("--type-size", `${font.sizePx}px`);
@@ -45,8 +49,22 @@ export class Renderer {
     sheet.className = "sheet";
     sheet.style.width = `${SHEET_W}px`;
     sheet.style.height = `${SHEET_H}px`;
+    // The seeded angle lives in a CSS variable; the stylesheet decides which layer
+    // rotates — the paper on screen, the type in print.
+    const page = this.sheets.length;
+    sheet.style.setProperty("--skew", `${pageSkew(this.doc.seed, page)}deg`);
+
+    const paper = document.createElement("div");
+    paper.className = "paper";
+    sheet.appendChild(paper);
+
+    const platen = document.createElement("div");
+    platen.className = "platen";
+    sheet.appendChild(platen);
+
     this.root.appendChild(sheet);
     this.sheets.push(sheet);
+    this.platens.push(platen);
   }
 
   private appendStrike(s: Strike): void {
@@ -59,13 +77,13 @@ export class Renderer {
     el.style.top = `${PAGE.marginY + s.row * PAGE.rowHeight}px`;
     el.style.opacity = String(s.jitter.ink);
     el.style.transform = `translate(${s.jitter.dx}px, ${s.jitter.dy}px) rotate(${s.jitter.rot}deg)`;
-    this.sheets[s.page].appendChild(el);
+    this.platens[s.page].appendChild(el);
   }
 
   private positionCursor(): void {
     const c = this.doc.carriage;
     while (this.sheets.length <= c.page) this.addSheet();
-    this.sheets[c.page].appendChild(this.cursor);
+    this.platens[c.page].appendChild(this.cursor);
     const displayCol = Math.min(c.col, PAGE.cols - 1);
     this.cursor.style.left = `${PAGE.marginX + displayCol * PAGE.colWidth}px`;
     this.cursor.style.top = `${PAGE.marginY + c.row * PAGE.rowHeight}px`;

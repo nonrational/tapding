@@ -52,3 +52,14 @@ export function computeJitter(seed: number, page: number, row: number, col: numb
     ink: 0.89 + r() * 0.11,
   };
 }
+
+// Most pages feed in straight; about 1 in 10 sits crooked, by a small fixed angle
+// that's stable per (seed, page) like cell jitter.
+export const SKEW_MAX_DEG = 1.5;
+export const SKEW_PROBABILITY = 0.1;
+
+export function pageSkew(seed: number, page: number): number {
+  const r = seededRandom(hash(seed, page));
+  if (r() >= SKEW_PROBABILITY) return 0;
+  return (r() - 0.5) * 2 * SKEW_MAX_DEG;
+}

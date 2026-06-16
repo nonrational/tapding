@@ -24,12 +24,21 @@
   }
 
   .sheet {
-    background: #fff;
-    background-image: none;
-    box-shadow: none;
-    border-radius: 0;
     page-break-after: always;
     break-after: page;
+  }
+
+  /* The artifact is the typed ink, nothing else — drop the paper entirely so the PDF
+     carries no sheet background, shadow, or border. */
+  .paper {
+    display: none;
+  }
+
+  /* The typing keeps the crooked angle it was struck at — the negative of the on-screen
+     paper skew, since the page is squared up. Transforms don't affect pagination, so the
+     page break still lands on the un-rotated box. */
+  .platen {
+    transform: rotate(calc(-1 * var(--skew, 0deg)));
   }
 
   .glyph {
