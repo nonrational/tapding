@@ -56,6 +56,7 @@ export class Renderer {
     while (this.sheets.length <= s.page) this.addSheet();
     const el = document.createElement("span");
     el.className = "glyph";
+    if (s.ribbon === "red") el.classList.add("ink-red");
     el.textContent = s.char;
     el.style.left = `${PAGE.marginX + s.col * PAGE.colWidth}px`;
     el.style.top = `${PAGE.marginY + s.row * PAGE.rowHeight}px`;

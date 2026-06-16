@@ -39,4 +39,8 @@
     color: #000;
     opacity: 1 !important;
   }
+
+  .glyph.ink-red {
+    color: var(--ink-red);
+  }
 }

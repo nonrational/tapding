@@ -1,6 +1,7 @@
 :root {
   --paper: #fbf8ee;
   --ink: #1a1714;
+  --ink-red: #b3261e;
   --desk-1: #efe9dc;
   --desk-2: #ddd5c4;
 }
@@ -55,6 +56,10 @@ body {
   pointer-events: none;
 }
 
+.glyph.ink-red {
+  color: var(--ink-red);
+}
+
 .cursor {
   position: absolute;
   border-bottom: 1.5px solid var(--ink);
@@ -94,3 +99,69 @@ body {
 }
 
 .ctl:hover { text-decoration: underline; }
+
+.ctl-ink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ink-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+}
+
+.ink-swatch[data-color="red"] {
+  background: var(--ink-red);
+  border-color: var(--ink-red);
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (pointer: coarse) and (hover: none) {
+  #app {
+    display: none;
+  }
+
+  .desktop-only {
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+}
+
+.desktop-only-card {
+  max-width: 22rem;
+  text-align: center;
+  color: var(--ink);
+  font-family: 'Courier New', monospace;
+}
+
+.desktop-only-mark {
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.desktop-only-card h1 {
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+
+.desktop-only-card p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.85;
+}
+
+/* Mirror the live typewriter cursor's blink for the heading's trailing underscore. */
+.blink-cursor {
+  animation: blink 1s steps(2, start) infinite;
+}

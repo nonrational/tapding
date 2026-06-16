@@ -35,6 +35,17 @@ describe("Renderer", () => {
     expect(second.style.left).toBe(`${PAGE.marginX + 1 * PAGE.colWidth}px`);
   });
 
+  it("marks red-ribbon strikes with the ink-red class, black ones without", () => {
+    const d = new Doc(1, "courier");
+    new Renderer(root).attach(d);
+    d.strike("a"); // black
+    d.toggleRibbon();
+    d.strike("b"); // red
+    const glyphs = root.querySelectorAll<HTMLElement>(".glyph");
+    expect(glyphs[0].classList.contains("ink-red")).toBe(false);
+    expect(glyphs[1].classList.contains("ink-red")).toBe(true);
+  });
+
   it("adds a second sheet after pagination", () => {
     const d = new Doc(1, "courier");
     new Renderer(root).attach(d);

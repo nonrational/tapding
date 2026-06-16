@@ -156,3 +156,45 @@ describe("serialize / restore", () => {
     expect(restored.carriage).toEqual(d.carriage);
   });
 });
+
+describe("ribbon", () => {
+  it("defaults strikes to black ink", () => {
+    const d = newDoc();
+    d.strike("a");
+    expect(d.strikes[0].ribbon).toBe("black");
+    expect(d.ribbon).toBe("black");
+  });
+
+  it("toggleRibbon flips color, returns it, and emits a ribbon event", () => {
+    const d = newDoc();
+    const events: string[] = [];
+    d.on((e) => events.push(e));
+    expect(d.toggleRibbon()).toBe("red");
+    d.strike("a");
+    expect(d.strikes[0].ribbon).toBe("red");
+    expect(d.toggleRibbon()).toBe("black");
+    d.strike("b");
+    expect(d.strikes[1].ribbon).toBe("black");
+    expect(events).toContain("ribbon");
+  });
+
+  it("round-trips ribbon through toState/fromState", () => {
+    const d = newDoc();
+    d.toggleRibbon();
+    d.strike("a");
+    const restored = Doc.fromState(d.toState());
+    expect(restored.ribbon).toBe("red");
+    expect(restored.strikes[0].ribbon).toBe("red");
+  });
+
+  it("defaults missing ribbon fields to black on fromState (back-compat)", () => {
+    const d = newDoc();
+    d.strike("a");
+    const state = d.toState() as any;
+    delete state.ribbon;
+    delete state.strikes[0].ribbon;
+    const restored = Doc.fromState(state);
+    expect(restored.ribbon).toBe("black");
+    expect(restored.strikes[0].ribbon).toBe("black");
+  });
+});

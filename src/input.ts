@@ -13,6 +13,12 @@ export function attachInput(deps: InputDeps): () => void {
   const handler = (e: KeyboardEvent) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return; // let browser shortcuts through
 
+    if (e.key === "Escape") {
+      e.preventDefault();
+      doc.toggleRibbon();
+      onActivity();
+      return;
+    }
     if (e.key === "Backspace") {
       e.preventDefault();
       doc.carriageBack();
