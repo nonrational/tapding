@@ -135,10 +135,11 @@ a.ctl { text-decoration: none; }
 .font-picker:hover { opacity: 1; }
 
 .type-mark {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13px;
-  line-height: 1;
+  display: inline-flex;
+  color: var(--ink);
 }
+
+.type-mark svg { display: block; }
 
 .font-select { padding: 4px 2px; }
 
