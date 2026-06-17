@@ -22,8 +22,8 @@ export class Audio_ {
       return a;
     };
     this.keys = KEY_SOUNDS.map((src) => [make(src), make(src), make(src)]);
-    this.bellEl = make("/sfx/return.mp3");
-    this.returnEl = make("/sfx/return.mp3");
+    this.bellEl = make("/sfx/bell.mp3");
+    this.returnEl = make("/sfx/carriage_return.mp3");
     this.spaceEl = make("/sfx/space.mp3");
     this.backEl = make("/sfx/backspace.mp3");
   }
