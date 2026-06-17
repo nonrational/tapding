@@ -8,8 +8,36 @@ export interface UI {
   printBtn: HTMLButtonElement;
   inkBtn: HTMLButtonElement;
   setRibbon: (color: "black" | "red") => void;
+  setMuted: (muted: boolean) => void;
   flashActivity: () => void;
 }
+
+const SPEAKER_ON =
+  '<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">' +
+  '<path d="M9 3 5 6H2v4h3l4 3z"/>' +
+  '<path d="M10.5 6a3 3 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>' +
+  '<path d="M12 4.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>' +
+  "</svg>";
+
+const SPEAKER_MUTED =
+  '<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">' +
+  '<path d="M9 3 5 6H2v4h3l4 3z"/>' +
+  '<path d="M11 6 14 9M14 6 11 9" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>' +
+  "</svg>";
+
+const NEW_PAGE =
+  '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M4 2h5l3 3v9H4z"/>' +
+  '<path d="M9 2v3h3"/>' +
+  '<path d="M8 8v3.5M6.25 9.75h3.5"/>' +
+  "</svg>";
+
+const PRINTER =
+  '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M4 6V2h8v4"/>' +
+  '<path d="M4 11.5H2.5A1.5 1.5 0 0 1 1 10V7.5A1.5 1.5 0 0 1 2.5 6h11A1.5 1.5 0 0 1 15 7.5V10a1.5 1.5 0 0 1-1.5 1.5H12"/>' +
+  '<path d="M4 9.5h8V14H4z"/>' +
+  "</svg>";
 
 export function buildUI(mount: HTMLElement): UI {
   mount.innerHTML = "";
@@ -23,6 +51,7 @@ export function buildUI(mount: HTMLElement): UI {
 
   const fontSelect = document.createElement("select");
   fontSelect.className = "font-select";
+  fontSelect.setAttribute("aria-label", "Typeface");
   for (const f of FONTS) {
     const opt = document.createElement("option");
     opt.value = f.id;
@@ -30,23 +59,39 @@ export function buildUI(mount: HTMLElement): UI {
     fontSelect.appendChild(opt);
   }
 
+  const fontPicker = document.createElement("label");
+  fontPicker.className = "font-picker";
+  fontPicker.title = "Typeface";
+  const typeMark = document.createElement("span");
+  typeMark.className = "type-mark";
+  typeMark.textContent = "Aa";
+  typeMark.setAttribute("aria-hidden", "true");
+  fontPicker.append(typeMark, fontSelect);
+
   const inkBtn = document.createElement("button");
   inkBtn.className = "ctl ctl-ink";
   inkBtn.type = "button";
   const inkSwatch = document.createElement("span");
   inkSwatch.className = "ink-swatch";
-  const inkLabel = document.createElement("span");
-  inkBtn.append(inkSwatch, inkLabel);
+  inkBtn.append(inkSwatch);
 
   const setRibbon = (color: "black" | "red") => {
     inkSwatch.dataset.color = color;
-    inkLabel.textContent = color;
+    inkBtn.title = `Ribbon: ${color}`;
+    inkBtn.setAttribute("aria-label", `Ribbon: ${color}`);
   };
   setRibbon("black");
 
-  const muteBtn = button("mute", "sound");
-  const clearBtn = button("clear", "clear");
-  const printBtn = button("print", "print");
+  const muteBtn = glyphButton("mute", SPEAKER_ON, "Mute");
+  const clearBtn = glyphButton("clear", NEW_PAGE, "New page");
+  const printBtn = glyphButton("print", PRINTER, "Print");
+
+  const setMuted = (muted: boolean) => {
+    muteBtn.innerHTML = muted ? SPEAKER_MUTED : SPEAKER_ON;
+    const label = muted ? "Unmute" : "Mute";
+    muteBtn.title = label;
+    muteBtn.setAttribute("aria-label", label);
+  };
 
   const source = document.createElement("a");
   source.className = "ctl ctl-source";
@@ -64,7 +109,7 @@ export function buildUI(mount: HTMLElement): UI {
     "1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48" +
     " 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z\"/></svg>";
 
-  controls.append(inkBtn, fontSelect, muteBtn, clearBtn, printBtn, source);
+  controls.append(inkBtn, fontPicker, muteBtn, clearBtn, printBtn, source);
   mount.append(feed, controls);
 
   let idle: ReturnType<typeof setTimeout> | undefined;
@@ -74,13 +119,15 @@ export function buildUI(mount: HTMLElement): UI {
     idle = setTimeout(() => mount.classList.remove("typing"), 1500);
   };
 
-  return { feed, fontSelect, muteBtn, clearBtn, printBtn, inkBtn, setRibbon, flashActivity };
+  return { feed, fontSelect, muteBtn, clearBtn, printBtn, inkBtn, setRibbon, setMuted, flashActivity };
 }
 
-function button(cls: string, label: string): HTMLButtonElement {
+function glyphButton(cls: string, svg: string, label: string): HTMLButtonElement {
   const b = document.createElement("button");
   b.className = `ctl ctl-${cls}`;
   b.type = "button";
-  b.textContent = label;
+  b.innerHTML = svg;
+  b.title = label;
+  b.setAttribute("aria-label", label);
   return b;
 }

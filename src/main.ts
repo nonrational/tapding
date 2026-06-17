@@ -24,6 +24,7 @@ function boot(): void {
   let doc = makeDoc();
   ui.fontSelect.value = doc.font;
   ui.setRibbon(doc.ribbon);
+  ui.setMuted(audio.muted);
   renderer.attach(doc);
 
   const wireDoc = (d: Doc) => {
@@ -45,7 +46,7 @@ function boot(): void {
 
   ui.muteBtn.addEventListener("click", () => {
     audio.setMuted(!audio.muted);
-    ui.muteBtn.textContent = audio.muted ? "muted" : "sound";
+    ui.setMuted(audio.muted);
   });
 
   ui.clearBtn.addEventListener("click", () => {
