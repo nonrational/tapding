@@ -13,6 +13,12 @@
     display: none !important;
   }
 
+  /* Patches are a screen affordance; the printed artifact is ink only. Covered
+     strikes are already display:none, so the correction simply prints clean. */
+  .whiteout {
+    display: none !important;
+  }
+
   .desk {
     padding: 0;
     display: block;

@@ -2,6 +2,7 @@ import { Doc } from "./doc";
 import { Renderer } from "./render";
 import { Audio_ } from "./audio";
 import { attachInput } from "./input";
+import { attachWhiteout } from "./whiteout";
 import { buildUI } from "./ui";
 import { DEFAULT_FONT } from "./fonts";
 import { saveDoc, loadDoc, clearDoc } from "./storage";
@@ -37,6 +38,7 @@ function boot(): void {
   wireDoc(doc);
 
   let detach = attachInput({ doc, audio, onActivity: ui.flashActivity });
+  let detachWhiteout = attachWhiteout({ doc, renderer, feed: ui.feed, onActivity: ui.flashActivity });
 
   ui.fontSelect.addEventListener("change", () => {
     doc.font = ui.fontSelect.value;
@@ -52,11 +54,13 @@ function boot(): void {
   ui.clearBtn.addEventListener("click", () => {
     clearDoc();
     detach();
+    detachWhiteout();
     doc = new Doc(newSeed(), doc.font);
     wireDoc(doc);
     renderer.attach(doc);
     ui.setRibbon(doc.ribbon);
     detach = attachInput({ doc, audio, onActivity: ui.flashActivity });
+    detachWhiteout = attachWhiteout({ doc, renderer, feed: ui.feed, onActivity: ui.flashActivity });
   });
 
   ui.inkBtn.addEventListener("click", () => {

@@ -72,3 +72,68 @@ describe("Renderer", () => {
     expect(root.querySelector(".paper .glyph")).toBeNull();
   });
 });
+
+describe("Renderer white-out", () => {
+  let root: HTMLElement;
+
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="feed"></div>';
+    root = document.getElementById("feed")!;
+  });
+
+  it("draws a white patch on a whiteout event", () => {
+    const d = new Doc(1, "courier", () => 0);
+    new Renderer(root).attach(d);
+    d.applyWhiteout(0, 0, 0);
+    expect(root.querySelectorAll(".whiteout")).toHaveLength(1);
+  });
+
+  it("covers a glyph struck before the patch (live)", () => {
+    const d = new Doc(1, "courier", () => 0);
+    new Renderer(root).attach(d);
+    d.strike("x");        // glyph in cell 0,0,0
+    d.carriageBack();     // back onto that cell
+    d.applyWhiteout(0, 0, 0);
+    const glyph = root.querySelector<HTMLElement>('.glyph[data-cell="0,0,0"]')!;
+    expect(glyph.classList.contains("covered")).toBe(true);
+  });
+
+  it("marks a strike on a wet cell with the smudge class", () => {
+    // appliedAt === 0 is treated as dry by the model, so freeze the clock at a
+    // nonzero instant: the patch is applied wet and the strike lands within DRY_MS.
+    const d = new Doc(1, "courier", () => 1);
+    new Renderer(root).attach(d);
+    d.applyWhiteout(0, 0, 0); // wet at t=1
+    d.strike("x");            // struck wet
+    expect(root.querySelector(".glyph.smudge")).not.toBeNull();
+  });
+
+  it("rebuilds covered state from saved whiteout on renderAll", () => {
+    const d = new Doc(1, "courier", () => 0);
+    d.strike("x");            // index 0, cell 0,0,0
+    d.applyWhiteout(0, 0, 0); // coversBefore 1 -> hides index 0
+    new Renderer(root).attach(d); // attach => renderAll from state
+    const glyph = root.querySelector<HTMLElement>('.glyph[data-cell="0,0,0"]')!;
+    expect(glyph.classList.contains("covered")).toBe(true);
+    expect(root.querySelectorAll(".whiteout")).toHaveLength(1);
+  });
+
+  it("keeps a strike landing after the patch visible", () => {
+    const d = new Doc(1, "courier", () => 0);
+    new Renderer(root).attach(d);
+    d.applyWhiteout(0, 0, 0); // coversBefore 0 (no strikes yet)
+    d.strike("x");            // index 0 in cell 0,0,0 — lands after the patch
+    const glyph = root.querySelector<HTMLElement>('.glyph[data-cell="0,0,0"]')!;
+    expect(glyph.classList.contains("covered")).toBe(false);
+  });
+
+  it("puts the patch in the gooey layer, not directly on the platen", () => {
+    const d = new Doc(1, "courier", () => 0);
+    new Renderer(root).attach(d);
+    d.applyWhiteout(0, 0, 0);
+    // The fluid layer is what carries the gooey filter; a patch outside it would
+    // render as a bare square. Lock it in the layer.
+    const patch = root.querySelector<HTMLElement>(".whiteout")!;
+    expect(patch.parentElement?.classList.contains("whiteout-layer")).toBe(true);
+  });
+});

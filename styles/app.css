@@ -2,6 +2,7 @@
   --paper: #fbf8ee;
   --ink: #1a1714;
   --ink-red: #b3261e;
+  --whiteout: #fffdf7;
   --desk-1: #efe9dc;
   --desk-2: #ddd5c4;
 }
@@ -36,6 +37,7 @@ body {
 
 .sheet {
   position: relative;
+  cursor: cell;
 }
 
 /* The paper. On screen it carries the seeded skew, so the sheet sits crooked in the
@@ -73,6 +75,39 @@ body {
 
 .glyph.ink-red {
   color: var(--ink-red);
+}
+
+/* All of a page's fluid dabs share this layer. The gooey filter (blur + alpha
+   threshold, defined in index.html) melts overlapping dabs into one continuous,
+   organic stroke; the drop-shadow traces that fused outline with a faint warm edge
+   so the correction still reads as a raised matte patch. */
+.whiteout-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  filter: url(#whiteout-goo) drop-shadow(0 0.5px 0.4px rgba(120, 110, 80, 0.18));
+}
+
+/* A dab of correction fluid: opaque, a touch brighter/matte than the paper so a fix
+   reads as a fix. It bleeds past its cell and carries an irregular radius (both set
+   in render.ts) so a run fuses into a blobby line and a lone dab isn't a square. */
+.whiteout {
+  position: absolute;
+  background: var(--whiteout);
+  pointer-events: none;
+}
+
+/* Struck before a covering patch: hidden on screen (the opaque patch sits over it)
+   and dropped from the printed page. */
+.glyph.covered { display: none; }
+
+/* Ink struck into wet fluid bleeds. How much rides --smudge (0..1, the cell's
+   wetness when typed): a fresh dab smears heavily, a near-dry one barely at all. */
+.glyph.smudge {
+  --smudge: 1;
+  filter: blur(calc(var(--smudge) * 1.6px));
+  text-shadow:
+    calc(var(--smudge) * 0.6px) calc(var(--smudge) * 0.4px) calc(var(--smudge) * 0.6px) currentColor;
 }
 
 .cursor {

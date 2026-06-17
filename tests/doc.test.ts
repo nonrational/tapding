@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Doc } from "../src/doc";
-import { PAGE } from "../src/geometry";
+import { PAGE, DRY_MS_BASE, DRY_MS_MAX } from "../src/geometry";
 
 const newDoc = () => new Doc(123, "courier");
 
@@ -196,5 +196,145 @@ describe("ribbon", () => {
     const restored = Doc.fromState(state);
     expect(restored.ribbon).toBe("black");
     expect(restored.strikes[0].ribbon).toBe("black");
+  });
+});
+
+describe("white-out", () => {
+  it("records appliedAt from the injected clock and coversBefore = strikes.length", () => {
+    let t = 1000;
+    const d = new Doc(123, "courier", () => t);
+    d.strike("a"); // index 0
+    d.applyWhiteout(0, 0, 0);
+    expect(d.whiteout).toHaveLength(1);
+    expect(d.whiteout[0]).toMatchObject({
+      page: 0, row: 0, col: 0, appliedAt: 1000, coversBefore: 1,
+    });
+  });
+
+  it("wetness decays linearly from 1 to 0 over a lone dab's dry time", () => {
+    let t = 1;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0); // lone dab -> dries in DRY_MS_BASE
+    expect(d.wetnessAt(0, 0, 0)).toBeCloseTo(1, 5);
+    t = 1 + DRY_MS_BASE / 2;
+    expect(d.wetnessAt(0, 0, 0)).toBeCloseTo(0.5, 5);
+    t = 1 + DRY_MS_BASE;
+    expect(d.wetnessAt(0, 0, 0)).toBe(0);
+    t = 1 + DRY_MS_BASE + 5000; // clamped, never negative
+    expect(d.wetnessAt(0, 0, 0)).toBe(0);
+  });
+
+  it("reports an unwhited cell as dry (wetness 0)", () => {
+    const d = new Doc(123, "courier", () => 1);
+    expect(d.wetnessAt(0, 0, 0)).toBe(0);
+  });
+
+  it("keeps dense white-out wet long after a lone dab has dried", () => {
+    let t = 1;
+    const lone = new Doc(1, "courier", () => t);
+    lone.applyWhiteout(0, 0, 0);
+    const block = new Doc(1, "courier", () => t);
+    for (let r = 4; r <= 6; r++) for (let c = 4; c <= 6; c++) block.applyWhiteout(0, r, c);
+    t = 1 + DRY_MS_BASE; // a lone dab is fully dry by now
+    expect(lone.wetnessAt(0, 0, 0)).toBe(0);
+    expect(block.wetnessAt(0, 5, 5)).toBeGreaterThan(0); // crowded center still wet
+  });
+
+  it("sets a strike's smudge to the cell's wetness at strike time", () => {
+    let t = 1;
+    const d = new Doc(1, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = 1 + DRY_MS_BASE / 4; // 75% wet
+    d.strike("x");
+    expect(d.strikes[0].smudge).toBeCloseTo(0.75, 5);
+  });
+
+  it("smudges a later strike less than an earlier one (the sooner, the blurrier)", () => {
+    let t = 1;
+    const d = new Doc(1, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = 1 + 200;
+    d.strike("a");      // strikes[0] — typed early, very wet
+    d.carriageBack();   // back onto the same cell
+    t = 1 + DRY_MS_BASE - 200;
+    d.strike("b");      // strikes[1] — typed late, nearly dry
+    expect(d.strikes[0].smudge).toBeGreaterThan(d.strikes[1].smudge);
+    expect(d.strikes[1].smudge).toBeGreaterThanOrEqual(0);
+  });
+
+  it("leaves a strike on a fully dried cell clean", () => {
+    let t = 1;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = 1 + DRY_MS_BASE; // dry
+    d.strike("x");
+    expect(d.strikes[0].smudge).toBe(0);
+  });
+
+  it("leaves a strike on an unwhited cell clean", () => {
+    const d = new Doc(123, "courier", () => 1);
+    d.strike("a");
+    expect(d.strikes[0].smudge).toBe(0);
+  });
+
+  it("lets the most recent whiteout govern wetness", () => {
+    let t = 1;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);    // appliedAt 1
+    t = 1 + DRY_MS_MAX + 100;    // first patch dry under any density
+    d.applyWhiteout(0, 0, 0);    // fresh patch on the same cell
+    expect(d.wetnessAt(0, 0, 0)).toBeCloseTo(1, 5);
+  });
+
+  it("emits a whiteout event", () => {
+    const d = new Doc(123, "courier", () => 0);
+    const seen: string[] = [];
+    d.on((e) => seen.push(e));
+    d.applyWhiteout(0, 0, 0);
+    expect(seen).toContain("whiteout");
+  });
+});
+
+describe("white-out persistence", () => {
+  it("round-trips whiteout and the smudge intensity", () => {
+    let t = 1;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = 1 + DRY_MS_BASE / 2; // strike at 50% wet
+    d.strike("x");
+    const restored = Doc.fromState(d.toState());
+    expect(restored.whiteout).toHaveLength(1);
+    expect(restored.whiteout[0]).toMatchObject({ page: 0, row: 0, col: 0, coversBefore: 0 });
+    expect(restored.strikes[0].smudge).toBeCloseTo(0.5, 5);
+  });
+
+  it("treats restored whiteout as dry regardless of elapsed time", () => {
+    const d = new Doc(123, "courier", () => 1);
+    d.applyWhiteout(0, 0, 0);
+    const restored = Doc.fromState(d.toState());
+    restored.now = () => 2; // barely any time passed since reset
+    expect(restored.whiteout[0].appliedAt).toBe(0);
+    expect(restored.wetnessAt(0, 0, 0)).toBe(0);
+  });
+
+  it("defaults missing whiteout and smudge on fromState (back-compat)", () => {
+    const d = new Doc(123, "courier");
+    d.strike("a");
+    const state = d.toState() as any;
+    delete state.whiteout;
+    delete state.strikes[0].smudge;
+    const restored = Doc.fromState(state);
+    expect(restored.whiteout).toEqual([]);
+    expect(restored.strikes[0].smudge).toBe(0);
+  });
+
+  it("maps a legacy boolean smudged flag to full intensity", () => {
+    const d = new Doc(123, "courier");
+    d.strike("a");
+    const state = d.toState() as any;
+    delete state.strikes[0].smudge;
+    state.strikes[0].smudged = true; // pre-gradient save format
+    const restored = Doc.fromState(state);
+    expect(restored.strikes[0].smudge).toBe(1);
   });
 });

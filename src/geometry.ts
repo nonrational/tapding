@@ -12,6 +12,22 @@ export const PAGE = {
   marginY: 48,
 } as const;
 
+// Correction fluid dries faster alone, slower in a crowd: a lone dab sets in
+// DRY_MS_BASE, and each other dab within WHITEOUT_RADIUS of a cell adds
+// DRY_MS_PER_NEIGHBOR to its dry time, up to DRY_MS_MAX. So a single correction
+// dries quickly while a long line or solid block stays wet far longer. A dried
+// cell takes a clean retype; a still-wet one smears the fresh strike. Tunable.
+export const WHITEOUT_RADIUS = 1;
+export const DRY_MS_BASE = 1500;
+export const DRY_MS_PER_NEIGHBOR = 700;
+export const DRY_MS_MAX = 7000;
+
+// How long a cell stays wet given how many dabs crowd it (itself included).
+export function dryMsForDensity(density: number): number {
+  const ms = DRY_MS_BASE + DRY_MS_PER_NEIGHBOR * (density - 1);
+  return Math.min(Math.max(ms, DRY_MS_BASE), DRY_MS_MAX);
+}
+
 export const SHEET_W = 816;
 export const SHEET_H = 1056;
 
@@ -50,6 +66,30 @@ export function computeJitter(seed: number, page: number, row: number, col: numb
     dy: (r() - 0.5) * 1.1,
     rot: (r() - 0.5) * 1.2,
     ink: 0.89 + r() * 0.11,
+  };
+}
+
+export interface Blob {
+  // How far the dab bleeds past its cell on each side, in px. The overlap with
+  // neighbouring dabs is what lets the gooey filter fuse them into one stroke.
+  bleedX: number;
+  bleedY: number;
+  // A CSS border-radius string giving the dab an irregular rounded edge, so a
+  // lone click reads as a blot of fluid rather than a square.
+  radius: string;
+}
+
+// A dab of correction fluid isn't a crisp rectangle: it bleeds past the cell and
+// dries with an uneven rounded edge. Deterministic per cell so the shape is stable
+// across re-renders (font change, reload). The gooey SVG filter (see index.html /
+// .whiteout-layer) then melts overlapping dabs into one continuous, organic stroke.
+export function computeBlob(seed: number, page: number, row: number, col: number): Blob {
+  const r = seededRandom(hash(seed, page, row, col) ^ 0x5bd1e995);
+  const pct = () => Math.round(40 + r() * 25); // 40–65% corner rounding
+  return {
+    bleedX: 1.4 + r() * 1.1,
+    bleedY: 1.0 + r() * 0.9,
+    radius: `${pct()}% ${pct()}% ${pct()}% ${pct()}% / ${pct()}% ${pct()}% ${pct()}% ${pct()}%`,
   };
 }
 
