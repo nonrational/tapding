@@ -13,6 +13,7 @@ Live at [tapding.pages.dev](https://tapding.pages.dev).
 - A margin bell dings near the right edge — its own sound, separate from the carriage return. The carriage hard-locks at column 80; further strikes overstrike the last cell.
 - Enter advances a row; new sheets roll in automatically when you hit the bottom.
 - Two-color ribbon: flip between black and red ink. Each strike records the color it was typed in, so the page is a faithful record of which letters were red.
+- Correction fluid: paint cells white with the mouse — click one or drag across a run. A patch dries in a few seconds; retype a dried cell and the fix lands crisp over the old mistake. Type before it dries and fresh ink smears into a permanent smudge — white it out and try again.
 - Six typewriter faces, pooled sound effects with a mute toggle, and a print stylesheet that hides everything but the page.
 - A glyph-only control pill: ink swatch, font picker, mute, new sheet, print, and a GitHub source link.
 - Autosave to localStorage — close the tab, come back, keep typing.
