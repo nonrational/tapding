@@ -113,22 +113,34 @@ body {
   padding: 4px 6px;
 }
 
-a.ctl { text-decoration: none; }
-.ctl:hover { text-decoration: underline; }
-
-.ctl-source {
+.ctl {
   display: inline-flex;
   align-items: center;
   opacity: 0.55;
+  transition: opacity 0.2s;
 }
 
-.ctl-source:hover { opacity: 1; }
+a.ctl { text-decoration: none; }
+.ctl:hover { opacity: 1; }
+.ctl svg { display: block; }
 
-.ctl-ink {
+.font-picker {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  opacity: 0.55;
+  transition: opacity 0.2s;
 }
+
+.font-picker:hover { opacity: 1; }
+
+.type-mark {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.font-select { padding: 4px 2px; }
 
 .ink-swatch {
   width: 12px;
