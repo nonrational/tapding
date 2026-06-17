@@ -12,6 +12,10 @@ export const PAGE = {
   marginY: 48,
 } as const;
 
+// Correction fluid dries after this long; a dried cell accepts a clean retype,
+// a still-wet one smears the fresh strike into a smudge. Tunable.
+export const DRY_MS = 4000;
+
 export const SHEET_W = 816;
 export const SHEET_H = 1056;
 

@@ -1,4 +1,4 @@
-import { PAGE, computeJitter, type Jitter } from "./geometry";
+import { PAGE, DRY_MS, computeJitter, type Jitter } from "./geometry";
 
 export type Ribbon = "black" | "red";
 
@@ -9,6 +9,17 @@ export interface Strike {
   col: number;
   jitter: Jitter;
   ribbon: Ribbon;
+  smudged: boolean;
+}
+
+export interface Whiteout {
+  page: number;
+  row: number;
+  col: number;
+  appliedAt: number;
+  // strikes.length at apply time: a strike at array index i in this cell is
+  // hidden iff i < max(coversBefore) of the cell's whiteouts.
+  coversBefore: number;
 }
 
 export interface Carriage {
@@ -25,7 +36,7 @@ export interface DocState {
   carriage: Carriage;
 }
 
-export type DocEvent = "strike" | "move" | "bell" | "return" | "newpage" | "ribbon";
+export type DocEvent = "strike" | "move" | "bell" | "return" | "newpage" | "ribbon" | "whiteout";
 
 const TAB_STOP = 8;
 
@@ -35,11 +46,14 @@ export class Doc {
   ribbon: Ribbon = "black";
   strikes: Strike[] = [];
   carriage: Carriage = { page: 0, row: 0, col: 0 };
+  whiteout: Whiteout[] = [];
+  now: () => number;
   private listeners: ((e: DocEvent) => void)[] = [];
 
-  constructor(seed: number, font: string) {
+  constructor(seed: number, font: string, now: () => number = Date.now) {
     this.seed = seed;
     this.font = font;
+    this.now = now;
   }
 
   on(fn: (e: DocEvent) => void): void {
@@ -55,7 +69,8 @@ export class Doc {
     const locked = this.carriage.col >= PAGE.cols;
     const col = locked ? PAGE.cols - 1 : this.carriage.col;
     const jitter = computeJitter(this.seed, page, row, col);
-    this.strikes.push({ char, page, row, col, jitter, ribbon: this.ribbon });
+    const smudged = this.wetAt(page, row, col);
+    this.strikes.push({ char, page, row, col, jitter, ribbon: this.ribbon, smudged });
     this.emit("strike");
     if (!locked) this.advance();
   }
@@ -68,6 +83,23 @@ export class Doc {
     this.ribbon = this.ribbon === "black" ? "red" : "black";
     this.emit("ribbon");
     return this.ribbon;
+  }
+
+  applyWhiteout(page: number, row: number, col: number): void {
+    this.whiteout.push({ page, row, col, appliedAt: this.now(), coversBefore: this.strikes.length });
+    this.emit("whiteout");
+  }
+
+  // Wet iff the most recent patch in the cell was applied less than DRY_MS ago.
+  wetAt(page: number, row: number, col: number): boolean {
+    let latest = -Infinity;
+    for (const w of this.whiteout) {
+      if (w.page === page && w.row === row && w.col === col && w.appliedAt > latest) {
+        latest = w.appliedAt;
+      }
+    }
+    if (latest === -Infinity) return false;
+    return this.now() - latest < DRY_MS;
   }
 
   tab(): void {

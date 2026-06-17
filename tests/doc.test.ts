@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Doc } from "../src/doc";
-import { PAGE } from "../src/geometry";
+import { PAGE, DRY_MS } from "../src/geometry";
 
 const newDoc = () => new Doc(123, "courier");
 
@@ -196,5 +196,74 @@ describe("ribbon", () => {
     const restored = Doc.fromState(state);
     expect(restored.ribbon).toBe("black");
     expect(restored.strikes[0].ribbon).toBe("black");
+  });
+});
+
+describe("white-out", () => {
+  it("records appliedAt from the injected clock and coversBefore = strikes.length", () => {
+    let t = 1000;
+    const d = new Doc(123, "courier", () => t);
+    d.strike("a"); // index 0
+    d.applyWhiteout(0, 0, 0);
+    expect(d.whiteout).toHaveLength(1);
+    expect(d.whiteout[0]).toMatchObject({
+      page: 0, row: 0, col: 0, appliedAt: 1000, coversBefore: 1,
+    });
+  });
+
+  it("is wet before DRY_MS and dry at/after", () => {
+    let t = 0;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = DRY_MS - 1;
+    expect(d.wetAt(0, 0, 0)).toBe(true);
+    t = DRY_MS;
+    expect(d.wetAt(0, 0, 0)).toBe(false);
+  });
+
+  it("reports an uncovered cell as not wet", () => {
+    const d = new Doc(123, "courier", () => 0);
+    expect(d.wetAt(0, 0, 0)).toBe(false);
+  });
+
+  it("smudges a strike on a wet covered cell", () => {
+    let t = 0;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = 1000; // still wet
+    d.strike("x");
+    expect(d.strikes[0].smudged).toBe(true);
+  });
+
+  it("keeps a strike clean on a dry covered cell", () => {
+    let t = 0;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0);
+    t = DRY_MS; // dry
+    d.strike("x");
+    expect(d.strikes[0].smudged).toBe(false);
+  });
+
+  it("keeps a strike clean on an uncovered cell", () => {
+    const d = new Doc(123, "courier", () => 0);
+    d.strike("a");
+    expect(d.strikes[0].smudged).toBe(false);
+  });
+
+  it("lets the most recent whiteout govern wetness", () => {
+    let t = 0;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0); // appliedAt 0
+    t = DRY_MS + 100;         // first patch now dry
+    d.applyWhiteout(0, 0, 0); // appliedAt DRY_MS+100, fresh/wet
+    expect(d.wetAt(0, 0, 0)).toBe(true);
+  });
+
+  it("emits a whiteout event", () => {
+    const d = new Doc(123, "courier", () => 0);
+    const seen: string[] = [];
+    d.on((e) => seen.push(e));
+    d.applyWhiteout(0, 0, 0);
+    expect(seen).toContain("whiteout");
   });
 });
