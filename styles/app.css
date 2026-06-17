@@ -2,6 +2,7 @@
   --paper: #fbf8ee;
   --ink: #1a1714;
   --ink-red: #b3261e;
+  --whiteout: #fffdf7;
   --desk-1: #efe9dc;
   --desk-2: #ddd5c4;
 }
@@ -36,6 +37,7 @@ body {
 
 .sheet {
   position: relative;
+  cursor: cell;
 }
 
 /* The paper. On screen it carries the seeded skew, so the sheet sits crooked in the
@@ -73,6 +75,25 @@ body {
 
 .glyph.ink-red {
   color: var(--ink-red);
+}
+
+/* Correction-fluid patch: opaque, a touch brighter/matte than the paper so a fix
+   reads as a fix. One grid cell, struck-glyph-blind (pointer events pass through). */
+.whiteout {
+  position: absolute;
+  background: var(--whiteout);
+  box-shadow: inset 0 0 0 0.5px rgba(120, 110, 80, 0.10);
+  pointer-events: none;
+}
+
+/* Struck before a covering patch: hidden on screen (the opaque patch sits over it)
+   and dropped from the printed page. */
+.glyph.covered { display: none; }
+
+/* Fresh ink into wet fluid: blurred and bled, semi-legible. */
+.glyph.smudge {
+  filter: blur(0.7px);
+  text-shadow: 0.5px 0.3px 0.5px currentColor;
 }
 
 .cursor {
