@@ -108,6 +108,7 @@ body {
   font-size: 13px;
   background: transparent;
   border: none;
+  border-radius: 6px;
   color: var(--ink);
   cursor: pointer;
   padding: 4px 6px;
@@ -123,6 +124,16 @@ body {
 a.ctl { text-decoration: none; }
 .ctl:hover { opacity: 1; }
 .ctl svg { display: block; }
+
+/* Drop Chrome's blue focus ring on mouse use; keep a subtle ink ring for keyboard nav. */
+.ctl:focus,
+.font-select:focus { outline: none; }
+
+.ctl:focus-visible,
+.font-select:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 1px;
+}
 
 .font-picker {
   display: inline-flex;
