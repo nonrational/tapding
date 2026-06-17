@@ -212,12 +212,12 @@ describe("white-out", () => {
   });
 
   it("is wet before DRY_MS and dry at/after", () => {
-    let t = 0;
+    let t = 1;
     const d = new Doc(123, "courier", () => t);
     d.applyWhiteout(0, 0, 0);
-    t = DRY_MS - 1;
+    t = 1 + DRY_MS - 1;
     expect(d.wetAt(0, 0, 0)).toBe(true);
-    t = DRY_MS;
+    t = 1 + DRY_MS;
     expect(d.wetAt(0, 0, 0)).toBe(false);
   });
 
@@ -227,7 +227,7 @@ describe("white-out", () => {
   });
 
   it("smudges a strike on a wet covered cell", () => {
-    let t = 0;
+    let t = 1;
     const d = new Doc(123, "courier", () => t);
     d.applyWhiteout(0, 0, 0);
     t = 1000; // still wet
@@ -265,5 +265,38 @@ describe("white-out", () => {
     d.on((e) => seen.push(e));
     d.applyWhiteout(0, 0, 0);
     expect(seen).toContain("whiteout");
+  });
+});
+
+describe("white-out persistence", () => {
+  it("round-trips whiteout and the smudged flag", () => {
+    let t = 1;
+    const d = new Doc(123, "courier", () => t);
+    d.applyWhiteout(0, 0, 0); // wet at t=1
+    d.strike("x");            // struck wet -> smudged
+    const restored = Doc.fromState(d.toState());
+    expect(restored.whiteout).toHaveLength(1);
+    expect(restored.whiteout[0]).toMatchObject({ page: 0, row: 0, col: 0, coversBefore: 0 });
+    expect(restored.strikes[0].smudged).toBe(true);
+  });
+
+  it("treats restored whiteout as dry regardless of elapsed time", () => {
+    const d = new Doc(123, "courier", () => 0);
+    d.applyWhiteout(0, 0, 0);
+    const restored = Doc.fromState(d.toState());
+    restored.now = () => 1; // barely any time passed since reset
+    expect(restored.whiteout[0].appliedAt).toBe(0);
+    expect(restored.wetAt(0, 0, 0)).toBe(false);
+  });
+
+  it("defaults missing whiteout and smudged on fromState (back-compat)", () => {
+    const d = new Doc(123, "courier");
+    d.strike("a");
+    const state = d.toState() as any;
+    delete state.whiteout;
+    delete state.strikes[0].smudged;
+    const restored = Doc.fromState(state);
+    expect(restored.whiteout).toEqual([]);
+    expect(restored.strikes[0].smudged).toBe(false);
   });
 });

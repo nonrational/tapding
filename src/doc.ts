@@ -34,6 +34,7 @@ export interface DocState {
   ribbon: Ribbon;
   strikes: Strike[];
   carriage: Carriage;
+  whiteout: Whiteout[];
 }
 
 export type DocEvent = "strike" | "move" | "bell" | "return" | "newpage" | "ribbon" | "whiteout";
@@ -91,6 +92,7 @@ export class Doc {
   }
 
   // Wet iff the most recent patch in the cell was applied less than DRY_MS ago.
+  // Patches with appliedAt === 0 are always treated as dry.
   wetAt(page: number, row: number, col: number): boolean {
     let latest = -Infinity;
     for (const w of this.whiteout) {
@@ -98,7 +100,7 @@ export class Doc {
         latest = w.appliedAt;
       }
     }
-    if (latest === -Infinity) return false;
+    if (latest === -Infinity || latest === 0) return false;
     return this.now() - latest < DRY_MS;
   }
 
@@ -155,14 +157,19 @@ export class Doc {
       ribbon: this.ribbon,
       strikes: [...this.strikes],
       carriage: this.carriage,
+      whiteout: [...this.whiteout],
     };
   }
 
   static fromState(s: DocState): Doc {
     const d = new Doc(s.seed, s.font);
     d.ribbon = s.ribbon ?? "black";
-    d.strikes = s.strikes.map((st) => ({ ...st, ribbon: st.ribbon ?? "black" }));
+    d.strikes = s.strikes.map((st) => ({ ...st, ribbon: st.ribbon ?? "black", smudged: st.smudged ?? false }));
     d.carriage = { ...s.carriage };
+    // Persisted patches are treated as dry on reload: reset appliedAt to 0 so
+    // wetAt() reads dry immediately. coversBefore is preserved — the strikes
+    // array is identical, so indices still line up.
+    d.whiteout = (s.whiteout ?? []).map((w) => ({ ...w, appliedAt: 0 }));
     return d;
   }
 
