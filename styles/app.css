@@ -77,12 +77,23 @@ body {
   color: var(--ink-red);
 }
 
-/* Correction-fluid patch: opaque, a touch brighter/matte than the paper so a fix
-   reads as a fix. One grid cell, struck-glyph-blind (pointer events pass through). */
+/* All of a page's fluid dabs share this layer. The gooey filter (blur + alpha
+   threshold, defined in index.html) melts overlapping dabs into one continuous,
+   organic stroke; the drop-shadow traces that fused outline with a faint warm edge
+   so the correction still reads as a raised matte patch. */
+.whiteout-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  filter: url(#whiteout-goo) drop-shadow(0 0.5px 0.4px rgba(120, 110, 80, 0.18));
+}
+
+/* A dab of correction fluid: opaque, a touch brighter/matte than the paper so a fix
+   reads as a fix. It bleeds past its cell and carries an irregular radius (both set
+   in render.ts) so a run fuses into a blobby line and a lone dab isn't a square. */
 .whiteout {
   position: absolute;
   background: var(--whiteout);
-  box-shadow: inset 0 0 0 0.5px rgba(120, 110, 80, 0.10);
   pointer-events: none;
 }
 

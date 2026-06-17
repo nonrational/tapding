@@ -1,5 +1,5 @@
 import type { Doc, Strike, Whiteout } from "./doc";
-import { PAGE, SHEET_W, SHEET_H, pageSkew } from "./geometry";
+import { PAGE, SHEET_W, SHEET_H, pageSkew, computeBlob } from "./geometry";
 import { fontById } from "./fonts";
 
 export class Renderer {
@@ -9,6 +9,9 @@ export class Renderer {
   // The text layer inside each sheet. On screen it stays square while the paper
   // tilts; in print it carries the angle while the paper is square (see the CSS).
   private platens: HTMLElement[] = [];
+  // One filtered layer per sheet holding that page's correction-fluid dabs. The
+  // gooey filter lives on the layer so it fuses the dabs without touching the type.
+  private whiteoutLayers: HTMLElement[] = [];
   private doc!: Doc;
 
   constructor(root: HTMLElement) {
@@ -32,6 +35,7 @@ export class Renderer {
     this.root.innerHTML = "";
     this.sheets = [];
     this.platens = [];
+    this.whiteoutLayers = [];
     const font = fontById(this.doc.font);
     this.root.style.setProperty("--type-family", font.family);
     this.root.style.setProperty("--type-size", `${font.sizePx}px`);
@@ -79,9 +83,17 @@ export class Renderer {
     platen.className = "platen";
     sheet.appendChild(platen);
 
+    // The fluid layer sits at the bottom of the platen so every glyph — including a
+    // clean retype — paints above its patch, while the gooey filter on the layer
+    // only ever sees the dabs.
+    const whiteoutLayer = document.createElement("div");
+    whiteoutLayer.className = "whiteout-layer";
+    platen.appendChild(whiteoutLayer);
+
     this.root.appendChild(sheet);
     this.sheets.push(sheet);
     this.platens.push(platen);
+    this.whiteoutLayers.push(whiteoutLayer);
   }
 
   private appendStrike(s: Strike, covered = false): void {
@@ -106,13 +118,17 @@ export class Renderer {
     // patch on screen and is dropped from the printed (ink-only) page.
     const sel = `.glyph[data-cell="${w.page},${w.row},${w.col}"]`;
     this.platens[w.page].querySelectorAll(sel).forEach((g) => g.classList.add("covered"));
+    // The dab bleeds past its cell so adjacent dabs overlap; the gooey filter on the
+    // layer then fuses the run into one continuous, blobby stroke.
+    const blob = computeBlob(this.doc.seed, w.page, w.row, w.col);
     const el = document.createElement("div");
     el.className = "whiteout";
-    el.style.left = `${PAGE.marginX + w.col * PAGE.colWidth}px`;
-    el.style.top = `${PAGE.marginY + w.row * PAGE.rowHeight}px`;
-    el.style.width = `${PAGE.colWidth}px`;
-    el.style.height = `${PAGE.rowHeight}px`;
-    this.platens[w.page].appendChild(el);
+    el.style.left = `${PAGE.marginX + w.col * PAGE.colWidth - blob.bleedX}px`;
+    el.style.top = `${PAGE.marginY + w.row * PAGE.rowHeight - blob.bleedY}px`;
+    el.style.width = `${PAGE.colWidth + blob.bleedX * 2}px`;
+    el.style.height = `${PAGE.rowHeight + blob.bleedY * 2}px`;
+    el.style.borderRadius = blob.radius;
+    this.whiteoutLayers[w.page].appendChild(el);
   }
 
   // Map a viewport point to a grid cell. The platen is not transformed on screen

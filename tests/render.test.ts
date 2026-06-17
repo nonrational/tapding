@@ -126,4 +126,14 @@ describe("Renderer white-out", () => {
     const glyph = root.querySelector<HTMLElement>('.glyph[data-cell="0,0,0"]')!;
     expect(glyph.classList.contains("covered")).toBe(false);
   });
+
+  it("puts the patch in the gooey layer, not directly on the platen", () => {
+    const d = new Doc(1, "courier", () => 0);
+    new Renderer(root).attach(d);
+    d.applyWhiteout(0, 0, 0);
+    // The fluid layer is what carries the gooey filter; a patch outside it would
+    // render as a bare square. Lock it in the layer.
+    const patch = root.querySelector<HTMLElement>(".whiteout")!;
+    expect(patch.parentElement?.classList.contains("whiteout-layer")).toBe(true);
+  });
 });

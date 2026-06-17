@@ -11,6 +11,15 @@
   </head>
   <body>
     <div id="app"></div>
+    <!-- Gooey filter for correction fluid: blur the dabs, then a steep alpha curve
+         re-sharpens them, fusing any that overlap into one organic blob. -->
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position: absolute">
+      <filter id="whiteout-goo" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur" />
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </svg>
     <div class="desktop-only">
       <div class="desktop-only-card">
         <img class="desktop-only-mark" src="/favicon.svg" alt="" width="48" height="48" />
