@@ -1,5 +1,6 @@
 import type { Doc, Strike, Whiteout } from "./doc";
 import { PAGE, SHEET_W, SHEET_H, pageSkew, computeBlob } from "./geometry";
+import { JAM_CLEAR_MS } from "./jam";
 import { fontById } from "./fonts";
 
 export class Renderer {
@@ -12,6 +13,7 @@ export class Renderer {
   // One filtered layer per sheet holding that page's correction-fluid dabs. The
   // gooey filter lives on the layer so it fuses the dabs without touching the type.
   private whiteoutLayers: HTMLElement[] = [];
+  private jamTimer: ReturnType<typeof setTimeout> | undefined;
   private doc!: Doc;
 
   constructor(root: HTMLElement) {
@@ -147,6 +149,35 @@ export class Renderer {
       return { page, row, col };
     }
     return null;
+  }
+
+  // Show a typebar clash: shudder the page and stamp a crossed mark at the carriage,
+  // both clearing when the hammers fall back after JAM_CLEAR_MS. Nothing prints.
+  flashJam(): void {
+    const c = this.doc.carriage;
+    while (this.sheets.length <= c.page) this.addSheet();
+    this.clearJam();
+
+    this.root.classList.add("jammed");
+    const mark = document.createElement("div");
+    mark.className = "typebar-jam";
+    const displayCol = Math.min(c.col, PAGE.cols - 1);
+    mark.style.left = `${PAGE.marginX + displayCol * PAGE.colWidth}px`;
+    mark.style.top = `${PAGE.marginY + c.row * PAGE.rowHeight}px`;
+    mark.style.width = `${PAGE.colWidth}px`;
+    mark.style.height = `${PAGE.rowHeight}px`;
+    this.platens[c.page].appendChild(mark);
+
+    this.jamTimer = setTimeout(() => this.clearJam(), JAM_CLEAR_MS);
+  }
+
+  private clearJam(): void {
+    if (this.jamTimer) {
+      clearTimeout(this.jamTimer);
+      this.jamTimer = undefined;
+    }
+    this.root.classList.remove("jammed");
+    this.root.querySelectorAll(".typebar-jam").forEach((m) => m.remove());
   }
 
   private positionCursor(): void {

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
 import { Doc } from "../src/doc";
-import { saveDoc, loadDoc, clearDoc } from "../src/storage";
+import { saveDoc, loadDoc, clearDoc, loadPrefs, savePrefs } from "../src/storage";
 
 describe("storage", () => {
   beforeEach(() => localStorage.clear());
@@ -27,5 +27,14 @@ describe("storage", () => {
     saveDoc(d, 0);
     clearDoc();
     expect(loadDoc()).toBeNull();
+  });
+
+  it("defaults prefs to repeat-suppressed when nothing is stored", () => {
+    expect(loadPrefs()).toEqual({ allowRepeat: false });
+  });
+
+  it("round-trips the key-repeat preference", () => {
+    savePrefs({ allowRepeat: true });
+    expect(loadPrefs()).toEqual({ allowRepeat: true });
   });
 });

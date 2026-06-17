@@ -110,6 +110,37 @@ body {
     calc(var(--smudge) * 0.6px) calc(var(--smudge) * 0.4px) calc(var(--smudge) * 0.6px) currentColor;
 }
 
+/* Typebar jam: a quick jolt of the page when two hammers clash. Runs once; the
+   crossed mark below lingers for the lock window. */
+@keyframes typebar-shudder {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+}
+#feed.jammed { animation: typebar-shudder 0.28s ease-in-out 1; }
+
+/* Where the jammed hammers clashed: a crossed smudge, no character. */
+.typebar-jam {
+  position: absolute;
+  pointer-events: none;
+  color: var(--ink);
+}
+.typebar-jam::before,
+.typebar-jam::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 1.5px;
+  height: 76%;
+  background: currentColor;
+  opacity: 0.65;
+}
+.typebar-jam::before { transform: translateX(-50%) rotate(24deg); }
+.typebar-jam::after { transform: translateX(-50%) rotate(-24deg); }
+
 .cursor {
   position: absolute;
   border-bottom: 1.5px solid var(--ink);
@@ -159,6 +190,23 @@ body {
 a.ctl { text-decoration: none; }
 .ctl:hover { opacity: 1; }
 .ctl svg { display: block; }
+
+/* Key-repeat toggle: pressed = repeat allowed (lit); unpressed (default) = suppressed,
+   drawn with a slash across the loop. */
+.ctl-repeat { position: relative; }
+.ctl-repeat[aria-pressed="true"] { opacity: 1; }
+.ctl-repeat[aria-pressed="false"]::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: 50%;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(-20deg);
+  transform-origin: center;
+  pointer-events: none;
+}
 
 /* Drop Chrome's blue focus ring on mouse use; keep a subtle ink ring for keyboard nav. */
 .ctl:focus,

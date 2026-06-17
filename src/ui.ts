@@ -7,8 +7,10 @@ export interface UI {
   clearBtn: HTMLButtonElement;
   printBtn: HTMLButtonElement;
   inkBtn: HTMLButtonElement;
+  repeatBtn: HTMLButtonElement;
   setRibbon: (color: "black" | "red") => void;
   setMuted: (muted: boolean) => void;
+  setRepeat: (allow: boolean) => void;
   flashActivity: () => void;
 }
 
@@ -30,6 +32,10 @@ const NEW_PAGE = phosphor(
 
 const PRINTER = phosphor(
   '<path d="M214.67,72H200V40a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8V72H41.33C27.36,72,16,82.77,16,96v80a8,8,0,0,0,8,8H56v32a8,8,0,0,0,8,8H192a8,8,0,0,0,8-8V184h32a8,8,0,0,0,8-8V96C240,82.77,228.64,72,214.67,72ZM72,48H184V72H72ZM184,208H72V160H184Zm40-40H200V152a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v16H32V96c0-4.41,4.19-8,9.33-8H214.67c5.14,0,9.33,3.59,9.33,8Zm-24-52a12,12,0,1,1-12-12A12,12,0,0,1,200,116Z"/>',
+);
+
+const REPEAT_MARK = phosphor(
+  '<path d="M24,128A72.08,72.08,0,0,1,96,56H204.69L194.34,45.66a8,8,0,0,1,11.32-11.32l24,24a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L204.69,72H96a56.06,56.06,0,0,0-56,56,8,8,0,0,1-16,0Zm200-8a8,8,0,0,0-8,8,56.06,56.06,0,0,1-56,56H51.31l10.35-10.34a8,8,0,0,0-11.32-11.32l-24,24a8,8,0,0,0,0,11.32l24,24a8,8,0,0,0,11.32-11.32L51.31,200H160a72.08,72.08,0,0,0,72-72A8,8,0,0,0,224,120Z"/>',
 );
 
 const FONT_MARK = phosphor(
@@ -86,6 +92,7 @@ export function buildUI(mount: HTMLElement): UI {
   const muteBtn = glyphButton("mute", SPEAKER_ON, "Mute");
   const clearBtn = glyphButton("clear", NEW_PAGE, "New page");
   const printBtn = glyphButton("print", PRINTER, "Print");
+  const repeatBtn = glyphButton("repeat", REPEAT_MARK, "Key repeat: off");
 
   const setMuted = (muted: boolean) => {
     muteBtn.innerHTML = muted ? SPEAKER_MUTED : SPEAKER_ON;
@@ -93,6 +100,15 @@ export function buildUI(mount: HTMLElement): UI {
     muteBtn.title = label;
     muteBtn.setAttribute("aria-label", label);
   };
+
+  // Pressed = auto-repeat allowed; unpressed (the default) draws a slash via CSS.
+  const setRepeat = (allow: boolean) => {
+    repeatBtn.setAttribute("aria-pressed", String(allow));
+    const label = allow ? "Key repeat: on" : "Key repeat: off";
+    repeatBtn.title = label;
+    repeatBtn.setAttribute("aria-label", label);
+  };
+  setRepeat(false);
 
   const source = document.createElement("a");
   source.className = "ctl ctl-source";
@@ -103,7 +119,7 @@ export function buildUI(mount: HTMLElement): UI {
   source.setAttribute("aria-label", "View source on GitHub");
   source.innerHTML = SOURCE_MARK;
 
-  controls.append(inkBtn, fontPicker, muteBtn, clearBtn, printBtn, source);
+  controls.append(inkBtn, fontPicker, repeatBtn, muteBtn, clearBtn, printBtn, source);
   mount.append(feed, controls);
 
   let idle: ReturnType<typeof setTimeout> | undefined;
@@ -113,7 +129,7 @@ export function buildUI(mount: HTMLElement): UI {
     idle = setTimeout(() => mount.classList.remove("typing"), 1500);
   };
 
-  return { feed, fontSelect, muteBtn, clearBtn, printBtn, inkBtn, setRibbon, setMuted, flashActivity };
+  return { feed, fontSelect, muteBtn, clearBtn, printBtn, inkBtn, repeatBtn, setRibbon, setMuted, setRepeat, flashActivity };
 }
 
 function glyphButton(cls: string, svg: string, label: string): HTMLButtonElement {

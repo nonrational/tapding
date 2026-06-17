@@ -9,7 +9,8 @@
   }
 
   .controls,
-  .cursor {
+  .cursor,
+  .typebar-jam {
     display: none !important;
   }
 
