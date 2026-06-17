@@ -12,9 +12,21 @@ export const PAGE = {
   marginY: 48,
 } as const;
 
-// Correction fluid dries after this long; a dried cell accepts a clean retype,
-// a still-wet one smears the fresh strike into a smudge. Tunable.
-export const DRY_MS = 4000;
+// Correction fluid dries faster alone, slower in a crowd: a lone dab sets in
+// DRY_MS_BASE, and each other dab within WHITEOUT_RADIUS of a cell adds
+// DRY_MS_PER_NEIGHBOR to its dry time, up to DRY_MS_MAX. So a single correction
+// dries quickly while a long line or solid block stays wet far longer. A dried
+// cell takes a clean retype; a still-wet one smears the fresh strike. Tunable.
+export const WHITEOUT_RADIUS = 1;
+export const DRY_MS_BASE = 1500;
+export const DRY_MS_PER_NEIGHBOR = 700;
+export const DRY_MS_MAX = 7000;
+
+// How long a cell stays wet given how many dabs crowd it (itself included).
+export function dryMsForDensity(density: number): number {
+  const ms = DRY_MS_BASE + DRY_MS_PER_NEIGHBOR * (density - 1);
+  return Math.min(Math.max(ms, DRY_MS_BASE), DRY_MS_MAX);
+}
 
 export const SHEET_W = 816;
 export const SHEET_H = 1056;

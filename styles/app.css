@@ -101,10 +101,13 @@ body {
    and dropped from the printed page. */
 .glyph.covered { display: none; }
 
-/* Fresh ink into wet fluid: blurred and bled, semi-legible. */
+/* Ink struck into wet fluid bleeds. How much rides --smudge (0..1, the cell's
+   wetness when typed): a fresh dab smears heavily, a near-dry one barely at all. */
 .glyph.smudge {
-  filter: blur(0.7px);
-  text-shadow: 0.5px 0.3px 0.5px currentColor;
+  --smudge: 1;
+  filter: blur(calc(var(--smudge) * 1.6px));
+  text-shadow:
+    calc(var(--smudge) * 0.6px) calc(var(--smudge) * 0.4px) calc(var(--smudge) * 0.6px) currentColor;
 }
 
 .cursor {

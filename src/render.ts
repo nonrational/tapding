@@ -101,7 +101,10 @@ export class Renderer {
     const el = document.createElement("span");
     el.className = "glyph";
     if (s.ribbon === "red") el.classList.add("ink-red");
-    if (s.smudged) el.classList.add("smudge");
+    if (s.smudge > 0) {
+      el.classList.add("smudge");
+      el.style.setProperty("--smudge", String(s.smudge));
+    }
     if (covered) el.classList.add("covered");
     el.dataset.cell = `${s.page},${s.row},${s.col}`;
     el.textContent = s.char;
