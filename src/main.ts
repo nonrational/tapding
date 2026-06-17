@@ -5,7 +5,7 @@ import { attachInput } from "./input";
 import { attachWhiteout } from "./whiteout";
 import { buildUI } from "./ui";
 import { DEFAULT_FONT } from "./fonts";
-import { saveDoc, loadDoc, clearDoc } from "./storage";
+import { saveDoc, loadDoc, clearDoc, loadPrefs, savePrefs } from "./storage";
 
 function newSeed(): number {
   return Math.floor(Math.random() * 0x7fffffff);
@@ -22,10 +22,13 @@ function boot(): void {
   const audio = new Audio_();
   const renderer = new Renderer(ui.feed);
 
+  let allowRepeat = loadPrefs().allowRepeat;
+
   let doc = makeDoc();
   ui.fontSelect.value = doc.font;
   ui.setRibbon(doc.ribbon);
   ui.setMuted(audio.muted);
+  ui.setRepeat(allowRepeat);
   renderer.attach(doc);
 
   const wireDoc = (d: Doc) => {
@@ -37,8 +40,21 @@ function boot(): void {
   };
   wireDoc(doc);
 
-  let detach = attachInput({ doc, audio, onActivity: ui.flashActivity });
+  const inputDeps = () => ({
+    doc,
+    audio,
+    onActivity: ui.flashActivity,
+    onJam: () => renderer.flashJam(),
+    allowRepeat: () => allowRepeat,
+  });
+  let detach = attachInput(inputDeps());
   let detachWhiteout = attachWhiteout({ doc, renderer, feed: ui.feed, onActivity: ui.flashActivity });
+
+  ui.repeatBtn.addEventListener("click", () => {
+    allowRepeat = !allowRepeat;
+    ui.setRepeat(allowRepeat);
+    savePrefs({ allowRepeat });
+  });
 
   ui.fontSelect.addEventListener("change", () => {
     doc.font = ui.fontSelect.value;
@@ -59,7 +75,7 @@ function boot(): void {
     wireDoc(doc);
     renderer.attach(doc);
     ui.setRibbon(doc.ribbon);
-    detach = attachInput({ doc, audio, onActivity: ui.flashActivity });
+    detach = attachInput(inputDeps());
     detachWhiteout = attachWhiteout({ doc, renderer, feed: ui.feed, onActivity: ui.flashActivity });
   });
 

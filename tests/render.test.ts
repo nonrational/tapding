@@ -137,3 +137,21 @@ describe("Renderer white-out", () => {
     expect(patch.parentElement?.classList.contains("whiteout-layer")).toBe(true);
   });
 });
+
+describe("Renderer typebar jam", () => {
+  let root: HTMLElement;
+
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="feed"></div>';
+    root = document.getElementById("feed")!;
+  });
+
+  it("shudders the feed and stamps a crossed mark on flashJam", () => {
+    const d = new Doc(1, "courier", () => 0);
+    const r = new Renderer(root);
+    r.attach(d);
+    r.flashJam();
+    expect(root.classList.contains("jammed")).toBe(true);
+    expect(root.querySelector(".typebar-jam")).not.toBeNull();
+  });
+});
